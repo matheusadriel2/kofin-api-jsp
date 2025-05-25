@@ -1177,9 +1177,28 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    const list = document.querySelector('#sidebar ul').cloneNode(true);
-    document.querySelector('#offcanvasNav .offcanvas-body').appendChild(list);
+    const sidebar   = document.querySelector('#sidebar');
+    const offcanvas = document.querySelector('#offcanvasNav .offcanvas-body');
+    const ul = sidebar.querySelector('ul').cloneNode(true);
+    const hr = sidebar.querySelector('hr').cloneNode(true);
+    hr.classList.remove('d-none', 'd-lg-block');
+
+    const liDivider = document.createElement('li');
+    liDivider.innerHTML = '<hr class="border-secondary my-1 w-100">';
+    ul.appendChild(liDivider);
+
+    const logoutLi = document.createElement('li');
+    logoutLi.className = 'nav-item mt-auto';
+
+    const logoutA = sidebar.querySelector('a.logout-link').cloneNode(true);
+    logoutA.classList.add('nav-link');
+    logoutLi.appendChild(logoutA);
+    ul.appendChild(logoutLi);
+
+    offcanvas.appendChild(ul);
   });
+
+
 
 
 </script>

@@ -97,14 +97,24 @@ public class CardsDao implements AutoCloseable {
     /* ---------- helper ---------- */
     private Cards mapRow(ResultSet rs) throws SQLException {
         Cards c = new Cards();
-        c.setId      (rs.getInt("ID_CARTAO"));
-        c.setName    (rs.getString("NM_CARTAO"));
-        c.setLast4   (rs.getString("NR_ULTIMOS4"));
-        c.setType    (CardType.valueOf(rs.getString("TIPO_CARTAO")));
+        c.setId(rs.getInt("ID_CARTAO"));
+        c.setName(rs.getString("NM_CARTAO"));
+        c.setLast4(rs.getString("NR_ULTIMOS4"));
+        c.setType(CardType.valueOf(rs.getString("TIPO_CARTAO")));
         c.setValidity(rs.getDate("VALIDADE").toLocalDate());
-        c.setFlag    (rs.getString("BANDEIRA"));
+        c.setFlag(rs.getString("BANDEIRA"));
+
+        Timestamp tsCriacao = rs.getTimestamp("DT_CRIACAO");
+        if (tsCriacao != null) {
+            c.setCreationDate(tsCriacao.toLocalDateTime().toLocalDate());
+        }
+        Timestamp tsUpdate = rs.getTimestamp("DT_ATUALIZACAO");
+        if (tsUpdate != null) {
+            c.setUpdateDate(tsUpdate.toLocalDateTime().toLocalDate());
+        }
         return c;
     }
+
 
     @Override public void close() throws SQLException { connection.close(); }
 }

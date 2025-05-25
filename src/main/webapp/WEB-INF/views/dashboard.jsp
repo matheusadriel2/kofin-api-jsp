@@ -11,31 +11,55 @@
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
 
   <style>
-    /* ============ CARDS (carrossel) ============ */
-    .cards-wrap  {position:relative;}                 /* ancôra p/ btn + e barra */
-    .h-scroll    {overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;}
+    .cards-wrap  {position:relative;padding:1rem;background:#6c757d;border-radius:.5rem;}
+    .h-scroll {
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-right: calc(1rem + 50px); /* espaço pro + */
+    }
     .h-scroll::-webkit-scrollbar{display:none;}
 
-    /* cartão ↓ um pouco menor */
-    .card-item   {min-width:200px;height:105px;padding:0.75rem;
-      background:#212529;border-radius:.5rem;position:relative;margin-right:.75rem;}
-    .card-name   {display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .last4       {font-size:.70rem;}
-    /* -------- botões -------- */
-    .card-actions{position:absolute;top:4px;right:4px;opacity:0;pointer-events:none;
-      transition:opacity .15s;}
-    .card-item:hover .card-actions,
-    .card-item.show-actions .card-actions{opacity:1;pointer-events:auto;}
+    .card-item   {
+      min-width:200px; height:105px; margin-right:1rem;
+      background:#212529; border-radius:.5rem; padding:.75rem;
+      position:relative;
+    }
+    .last4       { font-size:.70rem; }
 
-    /* ============ BOTÃO + ============ */
-    .add-card-btn{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
-      width:80px;height:105px;border-radius:.5rem;
-      background:#0d6efd;color:#fff;font-size:2rem;line-height:1;
-      display:flex;align-items:center;justify-content:center;
-      z-index:2}
+    .card-actions {
+      position:absolute; top:4px; right:4px;
+      opacity:0; pointer-events:none; transition:opacity .15s;
+    }
+    .card-item:hover .card-actions,
+    .card-item.show-actions .card-actions{
+      opacity:1; pointer-events:auto;
+    }
+
+    .add-card-btn {
+      position:absolute;
+      right:1rem;
+      top:50%; transform:translateY(-50%);
+      width:50px; height:105px; border-radius:.5rem;
+      background:#0d6efd; color:#fff; font-size:2rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor: pointer;            /* mostra mãozinha */
+      pointer-events: auto;       /* garante que seja clicável */
+      z-index: 2;                 /* fica sempre por cima */
+    }
+
+    /* resumo */
+    .summary-wrap {
+      background:#6c757d; border-radius:.5rem; padding:1rem;
+      display:flex; flex:1; flex-direction:column;
+    }
+    .summary-wrap .summary-grid { flex:1; display:flex; gap:1rem; }
+    .summary-wrap .summary-grid > div {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      background:#212529; border-radius:.5rem; padding:.75rem; text-align:center;
+    }
 
     /* ============ BARRA de SCROLL (hint) ============ */
-    .scroll-hint{position:absolute;right:calc(80px + 1rem); /* ao lado do + */
+    .scroll-hint{position:absolute;right:calc(55px + 1rem); /* ao lado do + */
       top:50%;transform:translateY(-50%);
       width:6px;height:42px;border-radius:3px;
       background:#6c757d;opacity:0;transition:opacity .2s;pointer-events:none;}
@@ -451,54 +475,63 @@
 </div>
 
 <script>
-  document.querySelectorAll('.card-item').forEach(card=>{
-    card.addEventListener('click',e=>{
-      if(e.target.closest('.card-actions')) return;
+  // toggle mobile tap
+  document.querySelectorAll('.card-item').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.card-actions')) return;
       card.classList.toggle('show-actions');
     });
   });
 
-  /* --- barra de scroll “hint” ------------------------------------------------ */
+  // hint de scroll
   const wrap   = document.querySelector('.cards-wrap');
   const hint   = document.getElementById('scrollHint');
   const scroll = wrap.querySelector('.h-scroll');
-
   function showHint(){
     hint.classList.add('show-hint');
     clearTimeout(hint._timer);
-    hint._timer = setTimeout(()=>hint.classList.remove('show-hint'),800);
+    hint._timer = setTimeout(() => hint.classList.remove('show-hint'), 800);
   }
-  scroll.addEventListener('pointerdown',showHint);
-  scroll.addEventListener('wheel',      showHint);
+  scroll.addEventListener('pointerdown', showHint);
+  scroll.addEventListener('wheel',       showHint);
 
-  document.addEventListener('shown.bs.modal', function (ev) {
-
-    /* -------- cartão -------- */
+  // popular campos do modal de edição
+  document.addEventListener('shown.bs.modal', function(ev) {
     if (ev.target.id === 'editCardModal') {
-      const btn  = ev.relatedTarget;              // botão ✎ que abriu
-      const id   = btn.getAttribute('data-id');
-      // Os campos seriam preenchidos via Ajax – ou com dataset já disponível.
-      // Exemplo simples:
+      const btn = ev.relatedTarget; // botão que disparou
+
+      // pega dataset
+      const { id, name, last4, type, validity, flag } = btn.dataset;
+
+      // preenche hidden id
       document.getElementById('editCardId').value = id;
-      // …preencha type, validity, flag (você pode buscar via dataset ou ajax)…
+
+      // preenche os inputs
+      document.getElementById('editCardName').value     = name;
+      document.getElementById('editCardLast4').value    = last4;
+      document.getElementById('editCardType').value     = type;
+      document.getElementById('editCardFlag').value     = flag;
+
+      // input type=month recebe "YYYY-MM"
+      let monthVal = validity;
+      // caso venha "YYYY-MM-01", corta para "YYYY-MM"
+      if (monthVal.length === 10 && monthVal.endsWith('-01')) {
+        monthVal = monthVal.slice(0,7);
+      }
+      document.getElementById('editCardValidity').value = monthVal;
     }
 
-    /* -------- transação (novo) -------- */
     if (ev.target.id === 'newTxModal') {
-      const btn  = ev.relatedTarget;
-      const type = btn.getAttribute('data-type');
-      document.getElementById('newTxType').value = type;
+      const btn = ev.relatedTarget;
+      document.getElementById('newTxType').value = btn.dataset.type;
     }
-
-    /* -------- transação (edição) ------ */
     if (ev.target.id === 'editTxModal') {
-      const btn  = ev.relatedTarget;
-      const id   = btn.getAttribute('data-id');
-      document.getElementById('editTxId').value = id;
-      // Também seria necessário popular os demais campos via Ajax
+      const btn = ev.relatedTarget;
+      document.getElementById('editTxId').value = btn.dataset.id;
     }
   });
 </script>
+
 
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
 </body>

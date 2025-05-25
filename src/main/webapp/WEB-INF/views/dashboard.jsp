@@ -1,138 +1,166 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" isELIgnored="false" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c"  uri="jakarta.tags.core"      %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
   <title>Kofin • Dashboard</title>
 
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css"/>
+  <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/css/bootstrap.css"/>
 
   <style>
-    /* ---------- cartões (carrossel) ---------- */
-    .h-scroll{overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;}
+    /* ============ CARDS (carrossel) ============ */
+    .cards-wrap  {position:relative;}                 /* ancôra p/ btn + e barra */
+    .h-scroll    {overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;}
     .h-scroll::-webkit-scrollbar{display:none;}
-    .card-block{min-width:220px;height:120px;}    /* ↓ um pouco menor */
-    .card-plus {width:90px;height:120px;}
-    .arrow-right{position:absolute;right:0;top:50%;transform:translateY(-50%);
-      padding:.3rem .45rem;background:#6c757d;border-radius:.25rem;cursor:pointer;}
 
-    /* ---------- transações ---------- */
+    /* cartão ↓ um pouco menor */
+    .card-item   {min-width:200px;height:105px;padding:0.75rem;
+      background:#212529;border-radius:.5rem;position:relative;margin-right:.75rem;}
+    .card-name   {display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .last4       {font-size:.70rem;}
+    /* -------- botões -------- */
+    .card-actions{position:absolute;top:4px;right:4px;opacity:0;pointer-events:none;
+      transition:opacity .15s;}
+    .card-item:hover .card-actions,
+    .card-item.show-actions .card-actions{opacity:1;pointer-events:auto;}
+
+    /* ============ BOTÃO + ============ */
+    .add-card-btn{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+      width:80px;height:105px;border-radius:.5rem;
+      background:#0d6efd;color:#fff;font-size:2rem;line-height:1;
+      display:flex;align-items:center;justify-content:center;
+      z-index:2}
+
+    /* ============ BARRA de SCROLL (hint) ============ */
+    .scroll-hint{position:absolute;right:calc(80px + 1rem); /* ao lado do + */
+      top:50%;transform:translateY(-50%);
+      width:6px;height:42px;border-radius:3px;
+      background:#6c757d;opacity:0;transition:opacity .2s;pointer-events:none;}
+    .show-hint  {opacity:.9;}
+
+    /* ============ LISTA de TRANSAÇÕES ============ */
     .tx-block{max-height:420px;overflow-y:auto;}
-
-    /* ---------- linha Cartões + Resumo ---------- */
-    .cards-summary {display:flex;flex-wrap:wrap;gap:1rem;align-items:stretch;}   /* mesma altura */
-    .cards-col    {flex:3 1 40%;min-width:300px;display:flex;flex-direction:column;}
-    .summary-col  {flex:4 1 57%;min-width:300px;display:flex;flex-direction:column;}
-
-    .cards-wrapper   {flex:1;}               /* preenche toda a altura da coluna */
-    .summary-wrapper {flex:1;display:flex;flex-direction:column;}
-
-    /* blocos internos do resumo esticam igual */
-    .summary-grid      {flex:1;display:flex;gap:1rem;}
-    .summary-grid>div  {flex:1;display:flex;flex-direction:column;
-      justify-content:center;align-items:center;}
-
-    /* sempre a mesma altura visual entre colunas */
-    @media (max-width: 991.98px){           /* Bootstrap lg-breakpoint */
-      .cards-summary{flex-direction:column;}/* empilha em telas pequenas */
-    }
   </style>
 </head>
 <body class="bg-dark text-light">
-
 <div class="container py-4">
 
-  <!-- título & logout -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- header -->
+  <div class="d-flex justify-content-between mb-4">
     <h2>Dashboard</h2>
     <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/logout">Sair</a>
   </div>
 
-  <!-- ============ CARTÕES (3/7) + RESUMO (4/7) ============ -->
-  <div class="cards-summary mb-5">
+  <!-- =================== ROW: CARTÕES + RESUMO =================== -->
+  <div class="row gy-4 mb-5">
 
-    <!-- ------------- Cartões ------------- -->
-    <div class="cards-col">
-      <h5 class="mb-2">💳 Cartões</h5>
+    <!-- Cartões -->
+    <div class="col-12 col-lg-5">
+      <h5 class="mb-2">Cartões</h5>
 
-      <div class="cards-wrapper bg-secondary rounded p-3 position-relative h-scroll d-flex gap-3">
+      <div class="bg-secondary rounded p-3 cards-wrap">
 
-        <span class="arrow-right">➜</span>
+        <!-- carrossel -->
+        <div class="h-scroll d-flex">
 
-        <c:forEach items="${cards}" var="c">
-          <div class="bg-dark rounded card-block p-3 position-relative">
-            <h6 class="mb-1">${c.name}</h6>
-            <strong>**** ${c.last4}</strong>
-            <small class="d-block">${c.type}</small>
-            <small class="d-block">Val: ${c.validity}</small>
-            <span class="position-absolute top-0 start-0 translate-middle p-1">${c.flag}</span>
+          <c:forEach items="${cards}" var="c">
+            <div class="card-item">
 
-            <!-- ações -->
-            <div class="position-absolute top-0 end-0 m-1">
-              <button class="btn btn-sm btn-outline-light"
-                      data-bs-toggle="modal" data-bs-target="#editCardModal"
-                      data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
-                      data-type="${c.type}" data-validity="${c.validity}" data-flag="${c.flag}">✎</button>
-              <form class="d-inline" method="post" action="${pageContext.request.contextPath}/card">
-                <input type="hidden" name="action" value="delete"/>
-                <input type="hidden" name="id" value="${c.id}"/>
-                <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-              </form>
+              <!-- nome (reticências via CSS) -->
+              <h6 class="mb-1 card-name">
+                <c:choose>
+                  <c:when test="${fn:length(c.name) > 17}">
+                    ${fn:substring(c.name,0,17)}&hellip;
+                  </c:when>
+                  <c:otherwise>${c.name}</c:otherwise>
+                </c:choose>
+              </h6>
+
+              <strong class="last4 d-block">**** ${c.last4}</strong>
+              <small class="d-block">${c.type}</small>
+
+              <small class="d-flex justify-content-between">
+                <span>Val: ${c.validity}</span><span>${c.flag}</span>
+              </small>
+
+              <!-- botões -->
+              <div class="card-actions">
+                <button class="btn btn-sm btn-outline-light me-1"
+                        data-bs-toggle="modal" data-bs-target="#editCardModal"
+                        data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
+                        data-type="${c.type}" data-validity="${c.validity}" data-flag="${c.flag}">✎</button>
+                <form class="d-inline" method="post"
+                      action="${pageContext.request.contextPath}/card"
+                      onclick="event.stopPropagation()">
+                  <input type="hidden" name="action" value="delete"/>
+                  <input type="hidden" name="id"     value="${c.id}"/>
+                  <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                </form>
+              </div>
             </div>
-          </div>
-        </c:forEach>
+          </c:forEach>
+
+        </div><!-- /h-scroll -->
 
         <!-- botão + -->
-        <button class="btn btn-outline-light card-plus rounded d-flex justify-content-center align-items-center"
-                data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
-      </div><!-- /cards-wrapper -->
-    </div><!-- /cards-col -->
+        <button class="add-card-btn" data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
 
-    <!-- ------------- Resumo ------------- -->
-    <div class="summary-col">
-      <div class="summary-wrapper">
-        <h5 class="mb-2">📊 Resumo</h5>
+        <!-- barra de scroll (hint) -->
+        <div class="scroll-hint" id="scrollHint"></div>
+      </div>
+    </div><!-- /cartões -->
 
-        <div class="summary-grid">
+    <!-- Resumo ------------------------------------------------------ -->
+    <div class="col-12 col-lg-7 d-flex flex-column">
+      <h5 class="mb-2">Resumo</h5>
 
-          <div class="bg-success bg-opacity-25 rounded p-3">
-            <h6 class="text-success-emphasis mb-1">Entradas (mês)</h6>
+      <!-- row-cols-* controla colunas; 1 nos xs, 3 a partir de sm -->
+      <div class="row row-cols-1 row-cols-sm-3 g-3 flex-grow-1">
+
+        <div class="col d-flex">
+          <div class="bg-success bg-opacity-25 rounded p-3 w-100 text-center d-flex flex-column justify-content-center">
+            <h6 class="text-success-emphasis">Entradas (mês)</h6>
             <h4 class="text-success">R$ ${incomeMonth}</h4>
             <small>Total: R$ ${incomeTotal}</small>
           </div>
+        </div>
 
-          <div class="bg-danger bg-opacity-25 rounded p-3">
-            <h6 class="text-danger-emphasis mb-1">Saídas (mês)</h6>
+        <div class="col d-flex">
+          <div class="bg-danger bg-opacity-25 rounded p-3 w-100 text-center d-flex flex-column justify-content-center">
+            <h6 class="text-danger-emphasis">Saídas (mês)</h6>
             <h4 class="text-danger">R$ ${expenseMonth}</h4>
             <small>Total: R$ ${expenseTotal}</small>
           </div>
+        </div>
 
-          <div class="bg-secondary bg-opacity-25 rounded p-3">
-            <h6 class="mb-1">Saldo</h6>
+        <div class="col d-flex">
+          <div class="bg-secondary bg-opacity-25 rounded p-3 w-100 text-center d-flex flex-column justify-content-center">
+            <h6>Saldo</h6>
             <h4>R$ ${saldoTotal}</h4>
             <small>Mês: R$ ${saldoMes}</small>
           </div>
+        </div>
 
-        </div><!-- /summary-grid -->
-      </div><!-- /summary-wrapper -->
-    </div><!-- /summary-col -->
+      </div><!-- /row resumo -->
+    </div><!-- /resumo -->
 
-  </div><!-- /cards-summary -->
+  </div><!-- /row Cartões + Resumo -->
 
-  <!-- ================= LISTA DE TRANSAÇÕES ================= -->
+  <!-- =================== LISTA DE TRANSAÇÕES =================== -->
+  <!-- usa grid bootstrap; empilha em celulares automaticamente -->
   <div class="row g-3">
 
-    <!-- ENTRADAS -->
     <div class="col-md-4">
       <h5 class="mb-2">Entradas
         <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal"
-                data-type="INCOME">+</button>
+                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="INCOME">+</button>
       </h5>
       <div class="bg-secondary rounded p-3 tx-block">
         <c:forEach items="${txIncome}" var="t">
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div class="d-flex justify-content-between border-bottom py-2">
             <div>
               <strong>R$ ${t.value}</strong>
               <small class="d-block">${t.payMethod}</small>
@@ -140,28 +168,20 @@
             <div>
               <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
                       data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-              <form class="d-inline" method="post" action="${pageContext.request.contextPath}/transaction">
-                <input type="hidden" name="action" value="delete"/>
-                <input type="hidden" name="id" value="${t.id}"/>
-                <input type="hidden" name="type" value="INCOME"/>
-                <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-              </form>
             </div>
           </div>
         </c:forEach>
       </div>
     </div>
 
-    <!-- SAÍDAS -->
     <div class="col-md-4">
       <h5 class="mb-2">Saídas
         <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal"
-                data-type="EXPENSE">+</button>
+                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="EXPENSE">+</button>
       </h5>
       <div class="bg-secondary rounded p-3 tx-block">
         <c:forEach items="${txExpense}" var="t">
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div class="d-flex justify-content-between border-bottom py-2">
             <div>
               <strong>R$ ${t.value}</strong>
               <small class="d-block">${t.payMethod}</small>
@@ -169,28 +189,20 @@
             <div>
               <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
                       data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-              <form class="d-inline" method="post" action="${pageContext.request.contextPath}/transaction">
-                <input type="hidden" name="action" value="delete"/>
-                <input type="hidden" name="id" value="${t.id}"/>
-                <input type="hidden" name="type" value="EXPENSE"/>
-                <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-              </form>
             </div>
           </div>
         </c:forEach>
       </div>
     </div>
 
-    <!-- INVESTIMENTOS -->
     <div class="col-md-4">
       <h5 class="mb-2">Investimentos
         <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal"
-                data-type="INVESTMENT">+</button>
+                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="INVESTMENT">+</button>
       </h5>
       <div class="bg-secondary rounded p-3 tx-block">
         <c:forEach items="${txInvestment}" var="t">
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div class="d-flex justify-content-between border-bottom py-2">
             <div>
               <strong>R$ ${t.value}</strong>
               <small class="d-block">${t.payMethod}</small>
@@ -198,49 +210,71 @@
             <div>
               <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
                       data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-              <form class="d-inline" method="post" action="${pageContext.request.contextPath}/transaction">
-                <input type="hidden" name="action" value="delete"/>
-                <input type="hidden" name="id" value="${t.id}"/>
-                <input type="hidden" name="type" value="INVESTMENT"/>
-                <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-              </form>
             </div>
           </div>
         </c:forEach>
       </div>
     </div>
 
-  </div><!-- /row transações -->
+  </div> <!-- /transações -->
 
-</div><!-- /container -->
+</div> <!-- /container -->
 
-<!-- =================== MODAIS (formulários) ================================ -->
-<!-- exemplo simples de criação de cartão  --->
-<div class="modal fade" id="newCardModal" tabindex="-1" aria-hidden="true">
+
+<!-- ================== MODAIS (formulários) =============================== -->
+<!-- exemplo simples de criação de cartão  -->
+<div class="modal fade" id="newCardModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
-      <input type="hidden" name="action" value="create">
+      <input type="hidden" name="action" value="create"/>
+
       <div class="modal-header bg-secondary text-light">
-        <h5 class="modal-title">Novo cartão</h5>
+        <h5 class="modal-title">Adicionar cartão</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
+        <!-- nome -->
+        <div class="mb-3">
+          <label class="form-label">Nome do cartão</label>
+          <input type="text" name="name" class="form-control" required/>
+        </div>
+
+        <!-- últimos 4 -->
+        <div class="mb-3">
+          <label class="form-label">Últimos 4 dígitos</label>
+          <input type="text" name="last4" class="form-control"
+                 maxlength="4" pattern="\d{4}" title="Insira exatamente 4 números"/>
+          <small class="text-muted">Obrigatório 4 dígitos numéricos.</small>
+        </div>
+
+        <!-- tipo -->
         <div class="mb-3">
           <label class="form-label">Tipo</label>
           <select name="type" class="form-select">
-            <option>DEBIT</option>
-            <option>CREDIT</option>
+            <option value="DEBIT">Débito</option>
+            <option value="CREDIT">Crédito</option>
           </select>
         </div>
+
+        <!-- validade -->
         <div class="mb-3">
-          <label class="form-label">Validade</label>
-          <input type="date" name="validity" class="form-control" required>
+          <label class="form-label">Validade (MM/AAAA)</label>
+          <input type="month" name="validity" class="form-control" required/>
         </div>
+
+        <!-- bandeira -->
         <div class="mb-3">
           <label class="form-label">Bandeira</label>
-          <input type="text" name="flag" class="form-control" required>
+          <select name="flag" class="form-select">
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="Elo">Elo</option>
+            <option value="Amex">Amex</option>
+          </select>
         </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button class="btn btn-primary">Salvar</button>
@@ -249,35 +283,60 @@
   </div>
 </div>
 
-<!-- =========================================
-     Modal: editar cartão
-=============================================-->
-<div class="modal fade" id="editCardModal" tabindex="-1" aria-hidden="true">
+
+<!-- Modal: editar cartão -->
+<div class="modal fade" id="editCardModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
-      <input type="hidden" name="action" value="update">
-      <input type="hidden" name="id" id="editCardId">
+      <input type="hidden" name="action" value="update"/>
+      <input type="hidden" name="id" id="editCardId"/>
+
       <div class="modal-header bg-secondary text-light">
         <h5 class="modal-title">Editar cartão</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
+        <!-- nome -->
+        <div class="mb-3">
+          <label class="form-label">Nome do cartão</label>
+          <input type="text" name="name" id="editCardName" class="form-control" required/>
+        </div>
+
+        <!-- last4 -->
+        <div class="mb-3">
+          <label class="form-label">Últimos 4 dígitos</label>
+          <input type="text" name="last4" id="editCardLast4" class="form-control"
+                 maxlength="4" pattern="\d{4}" title="Insira exatamente 4 números"/>
+        </div>
+
+        <!-- tipo -->
         <div class="mb-3">
           <label class="form-label">Tipo</label>
           <select name="type" id="editCardType" class="form-select">
-            <option>DEBIT</option>
-            <option>CREDIT</option>
+            <option value="DEBIT">Débito</option>
+            <option value="CREDIT">Crédito</option>
           </select>
         </div>
+
+        <!-- validade -->
         <div class="mb-3">
           <label class="form-label">Validade</label>
-          <input type="date" name="validity" id="editCardValidity" class="form-control" required>
+          <input type="month" name="validity" id="editCardValidity" class="form-control" required/>
         </div>
+
+        <!-- bandeira -->
         <div class="mb-3">
           <label class="form-label">Bandeira</label>
-          <input type="text" name="flag" id="editCardFlag" class="form-control" required>
+          <select name="flag" id="editCardFlag" class="form-select">
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="Elo">Elo</option>
+            <option value="Amex">Amex</option>
+          </select>
         </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button class="btn btn-primary">Salvar</button>
@@ -286,9 +345,7 @@
   </div>
 </div>
 
-<!-- =========================================
-     Modal: nova transação
-=============================================-->
+<!-- Modal: nova transação -->
 <div class="modal fade" id="newTxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -338,9 +395,7 @@
   </div>
 </div>
 
-<!-- =========================================
-     Modal: editar transação
-=============================================-->
+<!--   Modal: editar transação -->
 <div class="modal fade" id="editTxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -395,10 +450,27 @@
   </div>
 </div>
 
-<!-- =========================================================
-     Pequeno JS para preencher modais de edição
-===========================================================-->
 <script>
+  document.querySelectorAll('.card-item').forEach(card=>{
+    card.addEventListener('click',e=>{
+      if(e.target.closest('.card-actions')) return;
+      card.classList.toggle('show-actions');
+    });
+  });
+
+  /* --- barra de scroll “hint” ------------------------------------------------ */
+  const wrap   = document.querySelector('.cards-wrap');
+  const hint   = document.getElementById('scrollHint');
+  const scroll = wrap.querySelector('.h-scroll');
+
+  function showHint(){
+    hint.classList.add('show-hint');
+    clearTimeout(hint._timer);
+    hint._timer = setTimeout(()=>hint.classList.remove('show-hint'),800);
+  }
+  scroll.addEventListener('pointerdown',showHint);
+  scroll.addEventListener('wheel',      showHint);
+
   document.addEventListener('shown.bs.modal', function (ev) {
 
     /* -------- cartão -------- */

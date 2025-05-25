@@ -11,6 +11,17 @@
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
 
   <style>
+    .tx-block{
+      max-height:420px;
+      overflow-y:auto;
+
+      /* esconde o desenho da barra sem impedir o scroll  */
+      scrollbar-width:none;          /* Firefox */
+      -ms-overflow-style:none;       /* IE/Edge antigo */
+    }
+    .tx-block::-webkit-scrollbar{    /* Chrome/Safari/Edge */
+      display:none;
+    }
     .tx-item:hover .tx-actions,
     .tx-item.show-actions .tx-actions{opacity:1}
     .tx-block{

@@ -14,9 +14,10 @@
                 data-type="${param.type}">+</button>
     </div>
 
-    <div class="bg-dark bg-opacity-25 rounded p-3 tx-block d-flex flex-column justify-content-center">
+    <div class="bg-dark bg-opacity-25 rounded p-3 tx-block
+            <c:if test="${empty txList}"> d-flex flex-column justify-content-center</c:if>">
 
-        <c:choose>
+            <c:choose>
             <%-- ================= MENSAGEM QUANDO NÃO HÁ TRANSAÇÕES ================ --%>
             <c:when test="${empty txList}">
                 <p class="text-center text-muted mb-0">Sem transações</p>

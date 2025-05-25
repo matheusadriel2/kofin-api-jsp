@@ -429,13 +429,12 @@
   </div>
 </div>
 
-<!-- Modal: nova transação -->
+<!-- ========== MODAL: NOVA TRANSAÇÃO ========== -->
 <div class="modal fade" id="newTxModal" tabindex="-1">
   <div class="modal-dialog">
-    <form class="modal-content" method="post"
-          action="${pageContext.request.contextPath}/transaction">
-      <input type="hidden" name="action" value="create">
-      <input type="hidden" name="type"   id="newTxType">
+    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
+      <input type="hidden" name="action" value="create"/>
+      <input type="hidden" name="type"   id="newTxType"/>
 
       <div class="modal-header bg-secondary text-light">
         <h5 class="modal-title">Nova transação</h5>
@@ -444,19 +443,25 @@
 
       <div class="modal-body">
 
+        <!-- tipo (somente leitura) -->
+        <div class="mb-3">
+          <label class="form-label">Tipo</label>
+          <input type="text" class="form-control" id="newTxTypeLabel" disabled/>
+        </div>
+
         <div class="mb-3">
           <label class="form-label">Nome</label>
-          <input type="text" name="txName" class="form-control">
+          <input type="text" name="txName" class="form-control"/>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Categoria</label>
-          <input type="text" name="category" class="form-control">
+          <input type="text" name="category" class="form-control"/>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
-          <input type="number" step="0.01" name="value" class="form-control" required>
+          <input type="number" step="0.01" name="value" class="form-control" required/>
         </div>
 
         <div class="mb-3">
@@ -466,7 +471,6 @@
           </select>
         </div>
 
-        <!-- aparece só se método = CARD -->
         <div class="mb-3 d-none" id="newCardSelectWrap">
           <label class="form-label">Cartão (opcional)</label>
           <select name="cardId" class="form-select">
@@ -479,12 +483,11 @@
 
         <div class="mb-3">
           <label class="form-label">Data</label>
-          <input type="datetime-local" name="date" class="form-control">
+          <input type="datetime-local" name="date" id="newTxDate" class="form-control"/>
         </div>
 
         <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox"
-                 value="S" name="transfer" id="newTxTransfer">
+          <input class="form-check-input" type="checkbox" value="S" name="transfer" id="newTxTransfer"/>
           <label class="form-check-label" for="newTxTransfer">Transferência</label>
         </div>
 
@@ -507,14 +510,13 @@
 </div>
 
 
-<!--   Modal: editar transação -->
+<!-- ========== MODAL: EDITAR TRANSAÇÃO ========== -->
 <div class="modal fade" id="editTxModal" tabindex="-1">
   <div class="modal-dialog">
-    <form class="modal-content" method="post"
-          action="${pageContext.request.contextPath}/transaction">
-      <input type="hidden" name="action" value="update">
-      <input type="hidden" name="id"     id="editTxId">
-      <input type="hidden" name="type"   id="editTxType">
+    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
+      <input type="hidden" name="action" value="update"/>
+      <input type="hidden" name="id"     id="editTxId"/>
+      <input type="hidden" name="type"   id="editTxType"/>
 
       <div class="modal-header bg-secondary text-light">
         <h5 class="modal-title">Editar transação</h5>
@@ -523,20 +525,25 @@
 
       <div class="modal-body">
 
+        <!-- tipo (somente leitura) -->
+        <div class="mb-3">
+          <label class="form-label">Tipo</label>
+          <input type="text" id="editTxTypeLabel" class="form-control" disabled/>
+        </div>
+
         <div class="mb-3">
           <label class="form-label">Nome</label>
-          <input type="text" name="txName" id="editTxName" class="form-control">
+          <input type="text" name="txName" id="editTxName" class="form-control"/>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Categoria</label>
-          <input type="text" name="category" id="editTxCategory" class="form-control">
+          <input type="text" name="category" id="editTxCategory" class="form-control"/>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
-          <input type="number" step="0.01" name="value"
-                 id="editTxValue" class="form-control" required>
+          <input type="number" step="0.01" name="value" id="editTxValue" class="form-control" required/>
         </div>
 
         <div class="mb-3">
@@ -546,7 +553,6 @@
           </select>
         </div>
 
-        <!-- aparece só se método = CARD -->
         <div class="mb-3 d-none" id="editCardSelectWrap">
           <label class="form-label">Cartão (opcional)</label>
           <select name="cardId" id="editTxCardId" class="form-select">
@@ -559,13 +565,11 @@
 
         <div class="mb-3">
           <label class="form-label">Data</label>
-          <input type="datetime-local" name="date"
-                 id="editTxDate" class="form-control">
+          <input type="datetime-local" name="date" id="editTxDate" class="form-control"/>
         </div>
 
         <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox"
-                 value="S" name="transfer" id="editTxTransfer">
+          <input class="form-check-input" type="checkbox" value="S" name="transfer" id="editTxTransfer"/>
           <label class="form-check-label" for="editTxTransfer">Transferência</label>
         </div>
 
@@ -577,12 +581,6 @@
           </select>
         </div>
 
-        <!-- tipo somente leitura (último campo) -->
-        <div class="mb-3">
-          <label class="form-label">Tipo</label>
-          <input type="text" id="editTxTypeLabel" class="form-control" disabled>
-        </div>
-
       </div>
 
       <div class="modal-footer">
@@ -592,6 +590,7 @@
     </form>
   </div>
 </div>
+
 
 
 
@@ -668,6 +667,45 @@
 
   document.getElementById('editPayMethod').addEventListener('change', e=>
           toggleCardSelect(e.target, document.getElementById('editCardSelectWrap')));
+
+    /* ------- mostra botões (tap em mobile) ------- */
+    document.querySelectorAll('.tx-item').forEach(it=>{
+    it.addEventListener('click',e=>{
+      if(e.target.closest('.tx-actions')) return;
+      it.classList.toggle('show-actions');
+    });
+  });
+
+    /* ------- select cartão on/off ------- */
+    function toggleCard(sel,wrap){wrap.classList.toggle('d-none',sel.value!=='CARD');}
+    document.getElementById('newPayMethod').onchange = e=>toggleCard(e.target,document.getElementById('newCardSelectWrap'));
+    document.getElementById('editPayMethod').onchange= e=>toggleCard(e.target,document.getElementById('editCardSelectWrap'));
+
+    /* ------- popula modais ------- */
+    document.addEventListener('shown.bs.modal',ev=>{
+    /* NOVA */
+    if(ev.target.id==='newTxModal'){
+    const btn=ev.relatedTarget;
+    const type=btn.dataset.type;
+    document.getElementById('newTxType').value      = type;
+    document.getElementById('newTxTypeLabel').value = type;
+    document.getElementById('newTxDate').value = new Date().toISOString().slice(0,16);
+  }
+    /* EDITAR */
+    if(ev.target.id==='editTxModal'){
+    const btn=ev.relatedTarget;
+    const type=btn.dataset.type;
+    document.getElementById('editTxId').value   = btn.dataset.id;
+    document.getElementById('editTxType').value = type;
+    document.getElementById('editTxTypeLabel').value = type;
+    document.getElementById('editTxCardId').value = btn.dataset.cardid || '';
+  }
+  });
+
+    /* ------- limpa formulários ao fechar ------- */
+    ['newTxModal','editTxModal'].forEach(id=>{
+    document.getElementById(id).addEventListener('hidden.bs.modal',e=>e.target.querySelector('form').reset());
+  });
 
 </script>
 

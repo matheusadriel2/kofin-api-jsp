@@ -9,7 +9,8 @@
 
   <link rel="stylesheet"
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
-
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <style>
     .tx-block{
       max-height:420px;
@@ -165,16 +166,236 @@
       opacity: .85;
     }
 
+    /* =============  SIDEBAR DESKTOP  ============= */
+    .sidebar{
+      position:fixed;
+      top:0; left:0;
+      height:100vh;
+      width:64px;                         /* colapsada */
+      background:#212529;
+      transition:width .2s;
+      z-index:1040;                       /* acima do conteúdo */
+    }
+    .sidebar:hover,
+    .sidebar:focus-within{                 /* expande ao hover/foco */
+      width:220px;
+    }
+    .sidebar .brand{
+      font-size:1.1rem;
+    }
+    .sidebar .nav-link{
+      color:#adb5bd;
+      padding:.75rem .5rem;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active{
+      background:#0d6efd;
+      color:#fff;
+    }
+    .sidebar i{ font-size:1.25rem; }
+    .sidebar .link-text{                   /* aparece só quando expandido */
+      display:none;
+    }
+    .sidebar:hover .link-text,
+    .sidebar:focus-within .link-text{
+      display:inline;
+    }
+
+    /* --- NAV-LINK agora fica centralizado no modo compacto
+       e ganha padding à esquerda quando a barra expande --- */
+    .sidebar .nav-link{
+      display:flex;
+      align-items:center;
+      gap:.75rem;            /* espaço entre ícone e texto          */
+      justify-content:center;
+      padding:.75rem 0;      /* ↑↓ / ←→ (0 ←→ encosta menos)        */
+    }
+
+    .sidebar:hover   .nav-link,
+    .sidebar:focus-within .nav-link{
+      justify-content:flex-start; /* desloca itens p/ a direita      */
+      padding-left:1rem;          /* margem interna confortável      */
+    }
+
+    /* marca‐texto (“link-text”) herda o gap acima, não precisa margin */
+
+
+    /* ---------- TOP NAVBAR fixo ---------- */
+    .navbar-app{
+      position:fixed; top:0; left:0; right:0;
+      z-index:1030;                 /* acima da sidebar   */
+    }
+
+    /* dá espaço p/ o conteúdo, pois a navbar tem 56 px */
+    main{ margin-top:56px; }
+
+    /* ---------- SIDEBAR ---------- */
+    /*   < 1600 px  → colapsada (64 px) e expande no :hover
+         ≥ 1600 px → já nasce expandida (220 px)              */
+    @media (min-width:992px){          /* desktop em geral   */
+      .sidebar{ width:64px; }
+      main{ margin-left:64px; }      /* não fica coberto   */
+      .sidebar:hover,
+      .sidebar:focus-within{
+        width:220px;
+      }
+    }
+    @media (min-width:1600px){         /* telas muito largas */
+      .sidebar{ width:220px; }       /* sempre expandida   */
+      main{ margin-left:220px; }
+      /* texto e alinhamento SEM precisar de :hover       */
+      .sidebar .link-text{ display:inline; }
+      .sidebar .nav-link{
+        justify-content:flex-start;
+        padding-left:1rem;
+      }
+    }
+
+    /* ───────────── ESCONDE NAVBAR NO DESKTOP (>992px) ───────────── */
+    @media (min-width: 992px) {
+      .navbar-app .navbar-brand{
+        display: none !important;
+      }
+      /* já que a navbar some, tira o margin-top do main */
+      main {
+        margin-top: 0 !important;
+      }
+    }
+
+    /* ──────────── ESCONDE SIDEBAR NO MOBILE (<992px) ──────────── */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        display: none !important;
+      }
+      main {
+        margin-left: 0 !important;
+      }
+    }
+
+
+    /* ────────────── HAMBURGUER ────────────── */
+    /* só aparece quando a sidebar está oculta (mobile) */
+    @media (min-width: 992px) {
+      .btn-hamb {
+        display: none !important;
+      }
+    }
+    @media (max-width: 991.98px) {
+      .btn-hamb {
+        display: inline-flex !important;
+      }
+    }
+
+
+
+    /* remove bullet padrão do UL colado no offcanvas */
+    .offcanvas-body ul{ list-style:none; padding:0; margin:0; }
+
+    #offcanvasNav.offcanvas-start{
+      width:220px;          /* mesmo width da sidebar aberta        */
+    }
 
   </style>
 </head>
-<body class="bg-dark text-light">
+<body class="bg-dark text-light d-flex">
+<!-- ───────────── TOP NAVBAR ───────────── -->
+<nav class="navbar navbar-dark bg-dark navbar-app">
+  <div class="container-fluid justify-content-between">
+
+    <!-- brand  -->
+    <a href="${pageContext.request.contextPath}/dashboard"
+       class="navbar-brand d-flex align-items-center">
+      <img src="${pageContext.request.contextPath}/img/logo.svg"
+           alt="Kofin" width="28" height="28" class="me-2">
+      <strong>Kofin</strong>
+    </a>
+
+    <!-- à direita -->
+    <button class="btn btn-outline-light btn-sm btn-hamb"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNav"
+            aria-label="Menu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ────────────────  SIDEBAR  ──────────────── -->
+<nav id="sidebar" class="sidebar flex-column flex-shrink-0">
+  <!-- Logo / brand -->
+  <a href="${pageContext.request.contextPath}/dashboard"
+     class="brand text-decoration-none text-light d-flex align-items-center justify-content-center py-3">
+    <!-- ícone ou imagem pequena   -->
+    <img src="${pageContext.request.contextPath}/img/logo.svg"
+         alt="Kofin" width="28" height="28" class="me-0 me-lg-2">
+    <span class="d-none d-lg-inline fw-bold">Kofin</span>
+  </a>
+
+  <!-- Navegação -->
+  <ul class="nav nav-pills flex-column mb-auto w-100">
+    <li class="nav-item">
+      <a class="nav-link active" href="${pageContext.request.contextPath}/dashboard">
+        <i class="bi bi-speedometer2 me-lg-2"></i>
+        <span class="link-text">Dashboard</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="nav-link" href="#">
+        <i class="bi bi-wallet2 me-lg-2"></i>
+        <span class="link-text">Carteira</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="nav-link" href="#">
+        <i class="bi bi-bar-chart-line me-lg-2"></i>
+        <span class="link-text">Relatórios</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="nav-link" href="#">
+        <i class="bi bi-gear me-lg-2"></i>
+        <span class="link-text">Configurações</span>
+      </a>
+    </li>
+  </ul>
+
+  <hr class="d-none d-lg-block border-secondary my-1">
+
+  <!-- logout na base -->
+  <a href="${pageContext.request.contextPath}/logout"
+     class="nav-link text-light logout-link mb-3 mt-lg-auto">
+    <i class="bi bi-box-arrow-right me-lg-2"></i>
+    <span class="link-text">Sair</span>
+  </a>
+
+</nav>
+
+<!-- Off-canvas para tablet/móvel -->
+<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasNav">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Kofin</h5>
+    <button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <!-- reutiliza o mesmo <ul> da sidebar via JS -->
+  </div>
+</div>
+
+<!-- ────────────────  CONTEÚDO  ──────────────── -->
+<main class="flex-grow-1">
+
 <div class="container py-4">
 
   <!-- header -->
   <div class="d-flex justify-content-between mb-4">
     <h2>Dashboard</h2>
-    <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/logout">Sair</a>
   </div>
 
   <!-- =================== ROW: CARTÕES + RESUMO =================== -->
@@ -955,10 +1176,16 @@
     });
   });
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const list = document.querySelector('#sidebar ul').cloneNode(true);
+    document.querySelector('#offcanvasNav .offcanvas-body').appendChild(list);
+  });
+
 
 </script>
 
 
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+</main>
 </body>
 </html>

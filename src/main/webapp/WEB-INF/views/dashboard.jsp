@@ -756,6 +756,47 @@
   document.querySelectorAll('.tx-item').forEach(it=>{
     it.addEventListener('touchstart',()=>it.classList.toggle('show-actions'),{passive:true});
   });
+
+  /* ---------- EDITAR transação: preenche todos os campos ---------- */
+  document.querySelectorAll('[data-bs-target="#editTxModal"]').forEach(btn=>{
+    btn.addEventListener('click', () => {
+
+      /* dataset vindo de tx-item ------------------------------------------------ */
+      const it   = btn.closest('.tx-item');
+      const data = it.dataset;
+
+      /* campos invisíveis ------------------------------------------------------ */
+      editTxId.value        = data.id;
+      editTxType.value      = data.type;
+      editTxTypeLabel.value = data.type;
+
+      /* campos de texto -------------------------------------------------------- */
+      editTxName.value      = data.name;
+      editTxCategory.value  = data.cat;
+      editTxValue.value     = Number(data.val).toFixed(2);
+
+      /* método de pagamento + cartão opcional ---------------------------------- */
+      editPayMethod.value   = data.pm;
+      toggleCardSelect(editPayMethod, editCardSelectWrap);
+      editTxCardId.value    = data.card || '';
+
+      /* data e hora  ----------------------------------------------------------- */
+      editTxDate.value = data.date.slice(0,16);   // yyyy-MM-ddTHH:mm
+
+      /* transferência? --------------------------------------------------------- */
+      editTxTransfer.checked = data.transfer === 'true';
+
+      /* agendamento (vem null -> default imediata) ----------------------------- */
+      editTxScheduled.value = data.scheduled || 'NONSCHEDULED';
+    });
+  });
+
+  /* ---------- DELETE via ícone 🗑: confirmação opcional ----------------------- */
+  document.querySelectorAll('.tx-actions form').forEach(f=>{
+    f.addEventListener('submit', e=>{
+      if(!confirm('Excluir esta transação?')) e.preventDefault();
+    });
+  });
 </script>
 
 

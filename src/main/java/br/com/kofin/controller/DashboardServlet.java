@@ -48,6 +48,30 @@ public class DashboardServlet extends HttpServlet {
             List<Transactions> all =
                     tDao.listByUserAndCard(userId, cardFilter);
 
+            /* ----- parâmetros extras de filtro ---------------------------- */
+            String q       = req.getParameter("q");          // nome contém
+            String cat     = req.getParameter("cat");        // categoria contém
+            String pm      = req.getParameter("pm");         // método exato
+            String vminStr = req.getParameter("vmin");       // >=
+            String vmaxStr = req.getParameter("vmax");       // <=
+
+            Double vmin = (vminStr!=null && !vminStr.isBlank()) ? Double.parseDouble(vminStr) : null;
+            Double vmax = (vmaxStr!=null && !vmaxStr.isBlank()) ? Double.parseDouble(vmaxStr) : null;
+
+            /* ------- aplica filtros em memória (já veio filtrado por cartão) ---------- */
+            all = all.stream()
+                    .filter(t -> q   == null || q.isBlank() ||
+                            t.getName().toLowerCase().contains(q.toLowerCase()))
+                    .filter(t -> cat == null || cat.isBlank() ||
+                            (t.getCategory()!=null && t.getCategory().toLowerCase()
+                                    .contains(cat.toLowerCase())))
+                    .filter(t -> pm  == null || pm.isBlank() ||
+                            t.getPayMethod().name().equalsIgnoreCase(pm))
+                    .filter(t -> vmin==null || t.getValue() >= vmin)
+                    .filter(t -> vmax==null || t.getValue() <= vmax)
+                    .toList();
+
+
             Map<TransactionType, List<Transactions>> grouped =
                     all.stream()
                             .collect(Collectors.groupingBy(Transactions::getType));

@@ -1,9 +1,10 @@
 package br.com.kofin.model.enums;
 
+/** R = Receita, D = Despesa, I = Investimento */
 public enum TransactionType {
-    INCOME('I'),
-    EXPENSE('E'),
-    INVESTMENT('V');   // “V” de inVestimento
+    INCOME     ('R'),
+    EXPENSE    ('D'),
+    INVESTMENT ('I');
 
     private final char code;
     TransactionType(char code){ this.code = code; }
@@ -11,9 +12,9 @@ public enum TransactionType {
 
     public static TransactionType fromCode(char c){
         return switch (c){
-            case 'I' -> INCOME;
-            case 'E' -> EXPENSE;
-            case 'V' -> INVESTMENT;
+            case 'R' -> INCOME;
+            case 'D' -> EXPENSE;
+            case 'I' -> INVESTMENT;
             default  -> throw new IllegalArgumentException("Código inválido: "+c);
         };
     }

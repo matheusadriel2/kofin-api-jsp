@@ -1,90 +1,64 @@
 package br.com.kofin.model.entities;
 
-import br.com.kofin.model.enums.PaymentMethod;
-import br.com.kofin.model.enums.Scheduled;
-import br.com.kofin.model.enums.TransactionType;
-
+import br.com.kofin.model.enums.*;
 import java.time.LocalDateTime;
 
-/**
- * Entidade que representa qualquer transação financeira do usuário.
- * Uma transação **pode** estar vinculada a um cartão (cardId) ou conta (accountId).
- */
+/** Entidade de transação financeira. */
 public class Transactions {
+
     private Integer id;
+    private String  name;          // novo: nome da transação
+    private String  category;      // novo: categoria livre
     private TransactionType type;
     private Double value;
     private PaymentMethod payMethod;
-    private Boolean transfer;          // true = transferência entre contas
+    private Boolean transfer;
     private Scheduled isScheduled;
     private LocalDateTime transactionDate;
 
-    /* NOVO: vínculos opcionais */
-    private Integer cardId;            // fk T_CARTOES
-    private Integer accountId;         // fk T_CONTAS
+    /* vínculos opcionais */
+    private Integer cardId;
+    private Integer accountId;
 
-    /* --- construtores ---------------------------------------------------------------------- */
+    public Transactions(){}
 
-    public Transactions() {}
+    /* getters / setters ------------------------------------------------------------------ */
 
-    public Transactions(Integer id,
-                        TransactionType type,
-                        Double value,
-                        PaymentMethod payMethod,
-                        Boolean transfer,
-                        Scheduled isScheduled,
-                        LocalDateTime transactionDate,
-                        Integer cardId,
-                        Integer accountId) {
-        this.id = id;
-        this.type = type;
-        this.value = value;
-        this.payMethod = payMethod;
-        this.transfer = transfer;
-        this.isScheduled = isScheduled;
-        this.transactionDate = transactionDate;
-        this.cardId = cardId;
-        this.accountId = accountId;
-    }
+    public Integer getId()               { return id; }
+    public void    setId(Integer id)     { this.id = id; }
 
-    /* --- getters / setters ----------------------------------------------------------------- */
+    public String  getName()             { return name; }
+    public void    setName(String n)     { this.name = n; }
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public String  getCategory()         { return category; }
+    public void    setCategory(String c) { this.category = c; }
 
-    public TransactionType getType() { return type; }
-    public void setType(TransactionType type) { this.type = type; }
+    public TransactionType getType()           { return type; }
+    public void            setType(TransactionType t){ this.type = t; }
 
-    public Double getValue() { return value; }
-    public void setValue(Double value) { this.value = value; }
+    public Double getValue()             { return value; }
+    public void   setValue(Double value) { this.value = value; }
 
-    public PaymentMethod getPayMethod() { return payMethod; }
-    public void setPayMethod(PaymentMethod payMethod) { this.payMethod = payMethod; }
+    public PaymentMethod getPayMethod()               { return payMethod; }
+    public void          setPayMethod(PaymentMethod p){ this.payMethod = p; }
 
-    public Boolean getTransfer() { return transfer; }
-    public void setTransfer(Boolean transfer) { this.transfer = transfer; }
+    public Boolean getTransfer()                 { return transfer; }
+    public void    setTransfer(Boolean transfer) { this.transfer = transfer; }
 
-    public Scheduled getIsScheduled() { return isScheduled; }
-    public void setIsScheduled(Scheduled isScheduled) { this.isScheduled = isScheduled; }
+    public Scheduled getIsScheduled()                    { return isScheduled; }
+    public void      setIsScheduled(Scheduled scheduled) { this.isScheduled = scheduled; }
 
-    public LocalDateTime getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(LocalDateTime transactionDate) { this.transactionDate = transactionDate; }
+    public LocalDateTime getTransactionDate()                    { return transactionDate; }
+    public void          setTransactionDate(LocalDateTime date)  { this.transactionDate = date; }
 
-    public Integer getCardId() { return cardId; }
-    public void setCardId(Integer cardId) { this.cardId = cardId; }
+    public Integer getCardId()            { return cardId; }
+    public void    setCardId(Integer id)  { this.cardId = id; }
 
-    public Integer getAccountId() { return accountId; }
-    public void setAccountId(Integer accountId) { this.accountId = accountId; }
+    public Integer getAccountId()         { return accountId; }
+    public void    setAccountId(Integer id){ this.accountId = id; }
 
-    /* --- util ------------------------------------------------------------------------------ */
-
-    @Override
-    public String toString() {
-        return """
-               Transaction {
-                 id=%d, type=%s, value=%.2f, method=%s, transfer=%s, scheduled=%s,
-                 date=%s, cardId=%s, accountId=%s
-               }""".formatted(id, type, value, payMethod, transfer, isScheduled,
-                transactionDate, cardId, accountId);
+    @Override public String toString(){
+        return "Transactions{id=%d,name=%s,cat=%s,type=%s,val=%.2f,method=%s}".formatted(
+                id,name,category,type,value,payMethod);
     }
 }

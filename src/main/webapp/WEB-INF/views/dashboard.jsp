@@ -430,7 +430,7 @@
 </div>
 
 <!-- Modal: nova transação -->
-<div class="modal fade" id="newTxModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="newTxModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post"
           action="${pageContext.request.contextPath}/transaction">
@@ -445,19 +445,29 @@
       <div class="modal-body">
 
         <div class="mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" name="txName" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Categoria</label>
+          <input type="text" name="category" class="form-control">
+        </div>
+
+        <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
           <input type="number" step="0.01" name="value" class="form-control" required>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
-          <select name="payMethod" class="form-select">
+          <select name="payMethod" id="newPayMethod" class="form-select">
             <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
           </select>
         </div>
 
-        <!-- NOVO: vínculo opcional a cartão -->
-        <div class="mb-3">
+        <!-- aparece só se método = CARD -->
+        <div class="mb-3 d-none" id="newCardSelectWrap">
           <label class="form-label">Cartão (opcional)</label>
           <select name="cardId" class="form-select">
             <option value="">-- Sem cartão --</option>
@@ -473,7 +483,8 @@
         </div>
 
         <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" value="S" name="transfer" id="newTxTransfer">
+          <input class="form-check-input" type="checkbox"
+                 value="S" name="transfer" id="newTxTransfer">
           <label class="form-check-label" for="newTxTransfer">Transferência</label>
         </div>
 
@@ -485,7 +496,7 @@
           </select>
         </div>
 
-      </div><!-- /modal-body -->
+      </div>
 
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -495,8 +506,9 @@
   </div>
 </div>
 
+
 <!--   Modal: editar transação -->
-<div class="modal fade" id="editTxModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editTxModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post"
           action="${pageContext.request.contextPath}/transaction">
@@ -512,6 +524,16 @@
       <div class="modal-body">
 
         <div class="mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" name="txName" id="editTxName" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Categoria</label>
+          <input type="text" name="category" id="editTxCategory" class="form-control">
+        </div>
+
+        <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
           <input type="number" step="0.01" name="value"
                  id="editTxValue" class="form-control" required>
@@ -519,13 +541,13 @@
 
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
-          <select name="payMethod" id="editTxPayMethod" class="form-select">
+          <select name="payMethod" id="editPayMethod" class="form-select">
             <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
           </select>
         </div>
 
-        <!-- NOVO: vínculo opcional a cartão -->
-        <div class="mb-3">
+        <!-- aparece só se método = CARD -->
+        <div class="mb-3 d-none" id="editCardSelectWrap">
           <label class="form-label">Cartão (opcional)</label>
           <select name="cardId" id="editTxCardId" class="form-select">
             <option value="">-- Sem cartão --</option>
@@ -555,7 +577,13 @@
           </select>
         </div>
 
-      </div><!-- /modal-body -->
+        <!-- tipo somente leitura (último campo) -->
+        <div class="mb-3">
+          <label class="form-label">Tipo</label>
+          <input type="text" id="editTxTypeLabel" class="form-control" disabled>
+        </div>
+
+      </div>
 
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -564,6 +592,7 @@
     </form>
   </div>
 </div>
+
 
 
 <script>
@@ -623,6 +652,23 @@
       document.getElementById('editTxCardId').value = btn.dataset.cardid || "";
     }
   });
+
+  /* -------- limpa formulários quando o modal é fechado ---------- */
+  ['newTxModal','editTxModal'].forEach(id=>{
+    const m = document.getElementById(id);
+    m.addEventListener('hidden.bs.modal', ()=> m.querySelector('form').reset());
+  });
+
+  /* -------- mostra/esconde select de cartão --------------------- */
+  function toggleCardSelect(selectEl, wrapEl){
+    wrapEl.classList.toggle('d-none', selectEl.value !== 'CARD');
+  }
+  document.getElementById('newPayMethod' ).addEventListener('change', e=>
+          toggleCardSelect(e.target, document.getElementById('newCardSelectWrap')));
+
+  document.getElementById('editPayMethod').addEventListener('change', e=>
+          toggleCardSelect(e.target, document.getElementById('editCardSelectWrap')));
+
 </script>
 
 

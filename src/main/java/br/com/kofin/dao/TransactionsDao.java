@@ -41,7 +41,7 @@ public class TransactionsDao implements AutoCloseable {
 
             ps.setString(4, t.getPayMethod().name() + " transaction");
             ps.setString(5, "TRX" + System.currentTimeMillis());
-            ps.setString(6, t.getType().name());
+            ps.setString(6, String.valueOf(t.getType().getCode()));
             ps.setDouble(7, t.getValue());
             ps.setString(8, t.getPayMethod().name());
             ps.setString(9, Boolean.TRUE.equals(t.getTransfer()) ? "S" : "N");
@@ -90,7 +90,7 @@ public class TransactionsDao implements AutoCloseable {
             WHERE ID_TRANSACAO = ?
             """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, t.getType().name());
+            ps.setString(1, String.valueOf(t.getType().getCode()));
             ps.setDouble(2, t.getValue());
             ps.setString(3, t.getPayMethod().name());
             ps.setString(4, Boolean.TRUE.equals(t.getTransfer()) ? "S" : "N");
@@ -270,7 +270,7 @@ public class TransactionsDao implements AutoCloseable {
     private Transactions mapRow(ResultSet rs) throws SQLException {
         Transactions t = new Transactions();
         t.setId(rs.getInt("ID_TRANSACAO"));
-        t.setType(TransactionType.valueOf(rs.getString("TIPO_TRANSACAO")));
+        t.setType( TransactionType.fromCode( rs.getString("TIPO_TRANSACAO").charAt(0)));
         t.setValue(rs.getDouble("VALOR"));
         t.setPayMethod(PaymentMethod.valueOf(rs.getString("PGT_METODO")));
         t.setTransfer("S".equals(rs.getString("NR_TRANSFERENCIA")));

@@ -244,8 +244,10 @@
                   <small class="d-block">${t.payMethod}</small>
                 </div>
                 <button class="btn btn-sm btn-outline-light"
-                        data-bs-toggle="modal" data-bs-target="#editTxModal"
-                        data-id="${t.id}">✎</button>
+                        data-bs-toggle="modal"
+                        data-bs-target="#editTxModal"
+                        data-id="${t.id}"
+                        data-cardid="${t.cardId}">✎</button>
               </div>
             </c:forEach>
           </div>
@@ -304,7 +306,7 @@
 
 
 <!-- ================== MODAIS (formulários) =============================== -->
-<!-- exemplo simples de criação de cartão  -->
+<!-- Modal: criação de cartão  -->
 <div class="modal fade" id="newCardModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
@@ -430,27 +432,41 @@
 <!-- Modal: nova transação -->
 <div class="modal fade" id="newTxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
+    <form class="modal-content" method="post"
+          action="${pageContext.request.contextPath}/transaction">
       <input type="hidden" name="action" value="create">
-      <input type="hidden" name="type" id="newTxType">
+      <input type="hidden" name="type"   id="newTxType">
+
       <div class="modal-header bg-secondary text-light">
         <h5 class="modal-title">Nova transação</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
+
         <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
           <input type="number" step="0.01" name="value" class="form-control" required>
         </div>
+
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
           <select name="payMethod" class="form-select">
-            <option>CASH</option>
-            <option>CARD</option>
-            <option>PIX</option>
-            <option>BANK</option>
+            <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
           </select>
         </div>
+
+        <!-- NOVO: vínculo opcional a cartão -->
+        <div class="mb-3">
+          <label class="form-label">Cartão (opcional)</label>
+          <select name="cardId" class="form-select">
+            <option value="">-- Sem cartão --</option>
+            <c:forEach items="${cards}" var="cd">
+              <option value="${cd.id}">${cd.name}</option>
+            </c:forEach>
+          </select>
+        </div>
+
         <div class="mb-3">
           <label class="form-label">Data</label>
           <input type="datetime-local" name="date" class="form-control">
@@ -468,7 +484,9 @@
             <option value="SCHEDULED">Agendado</option>
           </select>
         </div>
-      </div>
+
+      </div><!-- /modal-body -->
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button class="btn btn-primary">Salvar</button>
@@ -480,38 +498,52 @@
 <!--   Modal: editar transação -->
 <div class="modal fade" id="editTxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
+    <form class="modal-content" method="post"
+          action="${pageContext.request.contextPath}/transaction">
       <input type="hidden" name="action" value="update">
-      <input type="hidden" name="id"  id="editTxId">
-      <input type="hidden" name="type" id="editTxType">
+      <input type="hidden" name="id"     id="editTxId">
+      <input type="hidden" name="type"   id="editTxType">
+
       <div class="modal-header bg-secondary text-light">
         <h5 class="modal-title">Editar transação</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
 
         <div class="mb-3">
           <label class="form-label">Valor (R$)</label>
-          <input type="number" step="0.01" name="value" id="editTxValue" class="form-control" required>
+          <input type="number" step="0.01" name="value"
+                 id="editTxValue" class="form-control" required>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
           <select name="payMethod" id="editTxPayMethod" class="form-select">
-            <option>CASH</option>
-            <option>CARD</option>
-            <option>PIX</option>
-            <option>BANK</option>
+            <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
+          </select>
+        </div>
+
+        <!-- NOVO: vínculo opcional a cartão -->
+        <div class="mb-3">
+          <label class="form-label">Cartão (opcional)</label>
+          <select name="cardId" id="editTxCardId" class="form-select">
+            <option value="">-- Sem cartão --</option>
+            <c:forEach items="${cards}" var="cd">
+              <option value="${cd.id}">${cd.name}</option>
+            </c:forEach>
           </select>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Data</label>
-          <input type="datetime-local" name="date" id="editTxDate" class="form-control">
+          <input type="datetime-local" name="date"
+                 id="editTxDate" class="form-control">
         </div>
 
         <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" value="S" name="transfer" id="editTxTransfer">
+          <input class="form-check-input" type="checkbox"
+                 value="S" name="transfer" id="editTxTransfer">
           <label class="form-check-label" for="editTxTransfer">Transferência</label>
         </div>
 
@@ -523,7 +555,8 @@
           </select>
         </div>
 
-      </div>
+      </div><!-- /modal-body -->
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button class="btn btn-primary">Salvar</button>
@@ -531,6 +564,7 @@
     </form>
   </div>
 </div>
+
 
 <script>
   // toggle mobile tap
@@ -586,6 +620,7 @@
     if (ev.target.id === 'editTxModal') {
       const btn = ev.relatedTarget;
       document.getElementById('editTxId').value = btn.dataset.id;
+      document.getElementById('editTxCardId').value = btn.dataset.cardid || "";
     }
   });
 </script>

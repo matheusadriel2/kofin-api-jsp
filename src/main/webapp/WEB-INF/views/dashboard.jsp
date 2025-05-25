@@ -107,8 +107,13 @@
               <small class="d-block">${c.type}</small>
 
               <small class="d-flex justify-content-between">
-                <span>Val: ${c.validity}</span><span>${c.flag}</span>
+                <span>
+                  Val:
+                  ${fn:substring(c.validity, 5, 7)}/${fn:substring(c.validity, 2, 4)}
+                </span>
+                <span>${c.flag}</span>
               </small>
+
 
               <!-- botões -->
               <div class="card-actions">

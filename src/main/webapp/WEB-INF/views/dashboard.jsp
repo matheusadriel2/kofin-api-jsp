@@ -11,6 +11,8 @@
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
 
   <style>
+    .tx-item:hover .tx-actions,
+    .tx-item.show-actions .tx-actions{opacity:1}
     .tx-block{
       max-height:calc(100vh - 420px); /* ocupa resto da página com folga */
       min-height:260px;
@@ -201,53 +203,86 @@
   <!-- ================= BLOCO: TRANSAÇÕES ================= -->
   <div class="col-12">
 
-    <!-- título principal -->
     <h5 class="mb-2">Transações</h5>
 
-    <!-- subtítulo + filtros (mesma linha) -->
+    <!-- filtros (cartão) ----------------------------------------------------- -->
     <div class="d-flex justify-content-between align-items-end mb-3">
       <h6 class="mb-0">Movimentos recentes</h6>
 
-      <form class="d-flex gap-2" method="get"
-            action="${pageContext.request.contextPath}/dashboard">
+      <form class="d-flex gap-2" method="get" action="${pageContext.request.contextPath}/dashboard">
         <select name="card" class="form-select form-select-sm">
           <option value="">Todos os cartões</option>
           <c:forEach items="${cards}" var="cd">
-            <option value="${cd.id}"
-              ${cd.id == selectedCard ? 'selected' : ''}>
-                ${cd.name}
-            </option>
+            <option value="${cd.id}" ${cd.id == selectedCard ? 'selected' : ''}>${cd.name}</option>
           </c:forEach>
         </select>
         <button class="btn btn-sm btn-outline-light">Filtrar</button>
       </form>
     </div>
 
-    <!-- conteúdo com fundo igual ao bloco de cartões -------- -->
+    <!-- colunas -------------------------------------------------------------- -->
     <div class="bg-secondary rounded p-3">
-
       <div class="row g-3">
 
         <!-- ========== ENTRADAS ========== -->
         <div class="col-md-4">
-          <h6 class="mb-2">Entradas
-            <button class="btn btn-sm btn-outline-light float-end"
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Entradas</h6>
+            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
+                    style="width:28px;height:28px;line-height:26px"
                     data-bs-toggle="modal" data-bs-target="#newTxModal"
                     data-type="INCOME">+</button>
-          </h6>
+          </div>
 
           <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
             <c:forEach items="${txIncome}" var="t">
-              <div class="d-flex justify-content-between border-bottom py-2">
-                <div>
-                  <strong>R$ ${t.value}</strong>
-                  <small class="d-block">${t.payMethod}</small>
+              <div class="tx-item position-relative border-bottom py-2">
+
+                <!-- conteúdo -->
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>${t.name}</strong>
+                    <c:if test="${not empty t.category}">
+                      <small class="d-block text-muted">${t.category}</small>
+                    </c:if>
+                    <small class="text-secondary">
+                        ${fn:substring(t.transactionDate,11,16)}
+                        ${fn:substring(t.transactionDate,8,10)}/
+                        ${fn:substring(t.transactionDate,5,7)}/
+                        ${fn:substring(t.transactionDate,2,4)}
+                    </small>
+                  </div>
+
+                  <div class="text-end">
+                    <strong>R$ ${t.value}</strong>
+                    <small class="d-block">
+                      <c:choose>
+                        <c:when test="${t.payMethod == 'CARD'}">
+                          CARD&nbsp;-&nbsp;****
+                          <c:forEach items="${cards}" var="cd">
+                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
+                          </c:forEach>
+                        </c:when>
+                        <c:otherwise>${t.payMethod}</c:otherwise>
+                      </c:choose>
+                    </small>
+                  </div>
                 </div>
-                <button class="btn btn-sm btn-outline-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editTxModal"
-                        data-id="${t.id}"
-                        data-cardid="${t.cardId}">✎</button>
+
+                <!-- botões -->
+                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
+                  <button class="btn btn-sm btn-outline-light me-1"
+                          data-bs-toggle="modal" data-bs-target="#editTxModal"
+                          data-id="${t.id}" data-type="INCOME" data-cardid="${t.cardId}">✎</button>
+
+                  <form class="d-inline" method="post"
+                        action="${pageContext.request.contextPath}/transaction"
+                        onmousedown="event.stopPropagation()">
+                    <input type="hidden" name="action" value="delete"/>
+                    <input type="hidden" name="id"     value="${t.id}"/>
+                    <button class="btn btn-sm btn-outline-danger">🗑</button>
+                  </form>
+                </div>
               </div>
             </c:forEach>
           </div>
@@ -255,22 +290,61 @@
 
         <!-- ========== SAÍDAS ========== -->
         <div class="col-md-4">
-          <h6 class="mb-2">Saídas
-            <button class="btn btn-sm btn-outline-light float-end"
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Saídas</h6>
+            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
+                    style="width:28px;height:28px;line-height:26px"
                     data-bs-toggle="modal" data-bs-target="#newTxModal"
                     data-type="EXPENSE">+</button>
-          </h6>
+          </div>
 
           <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
             <c:forEach items="${txExpense}" var="t">
-              <div class="d-flex justify-content-between border-bottom py-2">
-                <div>
-                  <strong>R$ ${t.value}</strong>
-                  <small class="d-block">${t.payMethod}</small>
+              <div class="tx-item position-relative border-bottom py-2">
+
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>${t.name}</strong>
+                    <c:if test="${not empty t.category}">
+                      <small class="d-block text-muted">${t.category}</small>
+                    </c:if>
+                    <small class="text-secondary">
+                        ${fn:substring(t.transactionDate,11,16)}
+                        ${fn:substring(t.transactionDate,8,10)}/
+                        ${fn:substring(t.transactionDate,5,7)}/
+                        ${fn:substring(t.transactionDate,2,4)}
+                    </small>
+                  </div>
+
+                  <div class="text-end">
+                    <strong>R$ ${t.value}</strong>
+                    <small class="d-block">
+                      <c:choose>
+                        <c:when test="${t.payMethod == 'CARD'}">
+                          CARD&nbsp;-&nbsp;****
+                          <c:forEach items="${cards}" var="cd">
+                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
+                          </c:forEach>
+                        </c:when>
+                        <c:otherwise>${t.payMethod}</c:otherwise>
+                      </c:choose>
+                    </small>
+                  </div>
                 </div>
-                <button class="btn btn-sm btn-outline-light"
-                        data-bs-toggle="modal" data-bs-target="#editTxModal"
-                        data-id="${t.id}">✎</button>
+
+                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
+                  <button class="btn btn-sm btn-outline-light me-1"
+                          data-bs-toggle="modal" data-bs-target="#editTxModal"
+                          data-id="${t.id}" data-type="EXPENSE" data-cardid="${t.cardId}">✎</button>
+
+                  <form class="d-inline" method="post"
+                        action="${pageContext.request.contextPath}/transaction"
+                        onmousedown="event.stopPropagation()">
+                    <input type="hidden" name="action" value="delete"/>
+                    <input type="hidden" name="id"     value="${t.id}"/>
+                    <button class="btn btn-sm btn-outline-danger">🗑</button>
+                  </form>
+                </div>
               </div>
             </c:forEach>
           </div>
@@ -278,22 +352,61 @@
 
         <!-- ========== INVESTIMENTOS ========== -->
         <div class="col-md-4">
-          <h6 class="mb-2">Investimentos
-            <button class="btn btn-sm btn-outline-light float-end"
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Investimentos</h6>
+            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
+                    style="width:28px;height:28px;line-height:26px"
                     data-bs-toggle="modal" data-bs-target="#newTxModal"
                     data-type="INVESTMENT">+</button>
-          </h6>
+          </div>
 
           <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
             <c:forEach items="${txInvestment}" var="t">
-              <div class="d-flex justify-content-between border-bottom py-2">
-                <div>
-                  <strong>R$ ${t.value}</strong>
-                  <small class="d-block">${t.payMethod}</small>
+              <div class="tx-item position-relative border-bottom py-2">
+
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>${t.name}</strong>
+                    <c:if test="${not empty t.category}">
+                      <small class="d-block text-muted">${t.category}</small>
+                    </c:if>
+                    <small class="text-secondary">
+                        ${fn:substring(t.transactionDate,11,16)}
+                        ${fn:substring(t.transactionDate,8,10)}/
+                        ${fn:substring(t.transactionDate,5,7)}/
+                        ${fn:substring(t.transactionDate,2,4)}
+                    </small>
+                  </div>
+
+                  <div class="text-end">
+                    <strong>R$ ${t.value}</strong>
+                    <small class="d-block">
+                      <c:choose>
+                        <c:when test="${t.payMethod == 'CARD'}">
+                          CARD&nbsp;-&nbsp;****
+                          <c:forEach items="${cards}" var="cd">
+                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
+                          </c:forEach>
+                        </c:when>
+                        <c:otherwise>${t.payMethod}</c:otherwise>
+                      </c:choose>
+                    </small>
+                  </div>
                 </div>
-                <button class="btn btn-sm btn-outline-light"
-                        data-bs-toggle="modal" data-bs-target="#editTxModal"
-                        data-id="${t.id}">✎</button>
+
+                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
+                  <button class="btn btn-sm btn-outline-light me-1"
+                          data-bs-toggle="modal" data-bs-target="#editTxModal"
+                          data-id="${t.id}" data-type="INVESTMENT" data-cardid="${t.cardId}">✎</button>
+
+                  <form class="d-inline" method="post"
+                        action="${pageContext.request.contextPath}/transaction"
+                        onmousedown="event.stopPropagation()">
+                    <input type="hidden" name="action" value="delete"/>
+                    <input type="hidden" name="id"     value="${t.id}"/>
+                    <button class="btn btn-sm btn-outline-danger">🗑</button>
+                  </form>
+                </div>
               </div>
             </c:forEach>
           </div>
@@ -302,6 +415,7 @@
       </div><!-- /row -->
     </div><!-- /bg-secondary -->
   </div><!-- /col-12 -->
+
 </div>
 
 

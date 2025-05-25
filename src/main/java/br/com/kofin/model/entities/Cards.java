@@ -1,5 +1,6 @@
 package br.com.kofin.model.entities;
 
+import br.com.kofin.model.enums.CardFlag;
 import br.com.kofin.model.enums.CardType;
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public class Cards {
     private String    last4;     // “XXXX” ou 4 dígitos
     private CardType  type;      // DEBIT | CREDIT
     private LocalDate validity;  // AAAA-MM-01
-    private String    flag;      // texto / emoji / ícone
+    private CardFlag  flag;       // texto / emoji / ícone
     private LocalDate creationDate;
     private LocalDate updateDate;
 
@@ -20,7 +21,7 @@ public class Cards {
     public Cards() {}
 
     public Cards(Integer id, String name, String last4, CardType type,
-                 LocalDate validity, String flag,
+                 LocalDate validity, CardFlag flag,
                  LocalDate creationDate, LocalDate updateDate) {
         this.id = id;
         this.name = name;
@@ -48,8 +49,8 @@ public class Cards {
     public LocalDate getValidity()            { return validity; }
     public void      setValidity(LocalDate v) { this.validity = v; }
 
-    public String  getFlag()                  { return flag; }
-    public void    setFlag(String flag)       { this.flag = flag; }
+    public CardFlag getFlag()                 { return flag; }
+    public void     setFlag(CardFlag f)       { this.flag = f; }
 
     public LocalDate getCreationDate()        { return creationDate; }
     public void      setCreationDate(LocalDate d){ this.creationDate = d; }

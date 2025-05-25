@@ -11,7 +11,6 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -20,41 +19,53 @@ import java.util.stream.Collectors;
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
 
-    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
         HttpSession s = req.getSession(false);
         if (s == null || s.getAttribute("userId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login"); return;
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
         int userId = (Integer) s.getAttribute("userId");
+
+        /* --------- parâmetro de filtro (cartão) ------------- */
+        Integer cardFilter = null;
+        String cardParam = req.getParameter("card");
+        if (cardParam != null && !cardParam.isBlank())
+            cardFilter = Integer.parseInt(cardParam);
 
         try (CardsDao cDao = new CardsDao();
              TransactionsDao tDao = new TransactionsDao()) {
 
-            /* ---------- cartões ---------- */
+            /* ----- cartões para carrossel / filtro -------- */
             List<Cards> cards = cDao.listByUser(userId);
             req.setAttribute("cards", cards);
+            req.setAttribute("selectedCard", cardFilter);
 
-            /* ---------- transações agrupadas ---------- */
+            /* ----- transações filtradas (ou todas) -------- */
+            List<Transactions> all =
+                    tDao.listByUserAndCard(userId, cardFilter);
+
             Map<TransactionType, List<Transactions>> grouped =
-                    tDao.listByUser(userId).stream()
+                    all.stream()
                             .collect(Collectors.groupingBy(Transactions::getType));
 
-            req.setAttribute("txIncome",     grouped.getOrDefault(TransactionType.INCOME,     List.of()));
-            req.setAttribute("txExpense",    grouped.getOrDefault(TransactionType.EXPENSE,    List.of()));
-            req.setAttribute("txInvestment", grouped.getOrDefault(TransactionType.INVESTMENT, List.of()));
+            req.setAttribute("txIncome",
+                    grouped.getOrDefault(TransactionType.INCOME, List.of()));
+            req.setAttribute("txExpense",
+                    grouped.getOrDefault(TransactionType.EXPENSE, List.of()));
+            req.setAttribute("txInvestment",
+                    grouped.getOrDefault(TransactionType.INVESTMENT, List.of()));
 
-            /* ---------- resumo ---------- */
-            YearMonth ym  = YearMonth.now();
-            LocalDate d1 = ym.atDay(1);
-            LocalDate dN = ym.atEndOfMonth();
+            /* ----- valores para o Resumo ------------------ */
+            YearMonth ym = YearMonth.now();
+            double incomeMonth  = sum(all, TransactionType.INCOME,  ym);
+            double expenseMonth = sum(all, TransactionType.EXPENSE, ym);
 
-            double incomeMonth  = tDao.sumByUserTypeAndDate(userId, TransactionType.INCOME , d1, dN);
-            double expenseMonth = tDao.sumByUserTypeAndDate(userId, TransactionType.EXPENSE, d1, dN);
-
-            double incomeTotal  = tDao.sumByUserAndType(userId, TransactionType.INCOME );
-            double expenseTotal = tDao.sumByUserAndType(userId, TransactionType.EXPENSE);
+            double incomeTotal  = sum(all, TransactionType.INCOME,  null);
+            double expenseTotal = sum(all, TransactionType.EXPENSE, null);
 
             req.setAttribute("incomeMonth",  incomeMonth);
             req.setAttribute("expenseMonth", expenseMonth);
@@ -67,6 +78,20 @@ public class DashboardServlet extends HttpServlet {
             throw new ServletException("Falha ao carregar dashboard", e);
         }
 
-        req.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/dashboard.jsp")
+                .forward(req, resp);
+    }
+
+    /* soma valores, podendo filtrar por tipo e/ou mês */
+    private double sum(List<Transactions> list,
+                       TransactionType type,
+                       YearMonth month) {
+
+        return list.stream()
+                .filter(t -> t.getType() == type)
+                .filter(t -> month == null ||
+                        YearMonth.from(t.getTransactionDate()).equals(month))
+                .mapToDouble(Transactions::getValue)
+                .sum();
     }
 }

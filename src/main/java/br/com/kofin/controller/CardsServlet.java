@@ -2,6 +2,7 @@ package br.com.kofin.controller;
 
 import br.com.kofin.dao.CardsDao;
 import br.com.kofin.model.entities.Cards;
+import br.com.kofin.model.enums.CardFlag;
 import br.com.kofin.model.enums.CardType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,12 +16,15 @@ import java.util.List;
 @WebServlet("/card/*")
 public class CardsServlet extends HttpServlet {
 
-    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    /* ---------- GET (lista) ---------- */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
         HttpSession s = req.getSession(false);
         if (s == null || s.getAttribute("userId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login"); return;
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
 
         try (CardsDao dao = new CardsDao()) {
@@ -29,20 +33,25 @@ public class CardsServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException("Falha ao listar cartões", e);
         }
+
         req.getRequestDispatcher("/WEB-INF/views/cards.jsp").forward(req, resp);
     }
 
-    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    /* ---------- POST (create / update / delete) ---------- */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
         HttpSession s = req.getSession(false);
         if (s == null || s.getAttribute("userId") == null) {
-            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED); return;
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
         int userId = (Integer) s.getAttribute("userId");
         String action = req.getParameter("action");
 
         try (CardsDao dao = new CardsDao()) {
+
             switch (action) {
                 case "create" -> {
                     Cards c = new Cards();
@@ -55,8 +64,9 @@ public class CardsServlet extends HttpServlet {
                     dao.update(c);
                 }
                 case "delete" -> dao.delete(Integer.parseInt(req.getParameter("id")));
-                default       -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
+                default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
             }
+
         } catch (Exception e) {
             throw new ServletException("Erro no cartão", e);
         }
@@ -64,12 +74,23 @@ public class CardsServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/dashboard");
     }
 
+    /* ---------- helper ---------- */
     private void fill(HttpServletRequest req, Cards c) {
-        c.setName (req.getParameter("name"));
+        c.setName(req.getParameter("name"));
+
         String last4 = req.getParameter("last4");
         c.setLast4(last4 == null || last4.isBlank() ? "XXXX" : last4);
-        c.setType (CardType.valueOf(req.getParameter("type").toUpperCase()));
-        c.setValidity(LocalDate.parse(req.getParameter("validity") + "-01")); // <input type=month>
-        c.setFlag (req.getParameter("flag"));
+
+        c.setType(CardType.valueOf(req.getParameter("type").toUpperCase()));
+
+        // <input type="month"> fornece AAAA-MM
+        c.setValidity(LocalDate.parse(req.getParameter("validity") + "-01"));
+
+        /* flag opcional */
+        String flagParam = req.getParameter("flag");
+        if (flagParam == null || flagParam.isBlank())
+            c.setFlag(null);
+        else
+            c.setFlag(CardFlag.valueOf(flagParam.toUpperCase()));
     }
 }

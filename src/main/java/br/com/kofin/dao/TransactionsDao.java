@@ -224,6 +224,46 @@ public class TransactionsDao implements AutoCloseable {
         }
     }
 
+    public List<Transactions> listByUserAndCard(int userId, Integer cardId) throws SQLException{
+        String sql = """
+       SELECT * FROM T_TRANSACOES
+        WHERE T_USUARIOS_ID_USUARIO = ?
+          AND ( ? IS NULL OR T_CARTOES_ID_CARTAO = ? )
+        ORDER BY DT_TRANSACAO DESC
+   """;
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setInt(1,userId);
+            if(cardId==null){ ps.setNull(2,Types.INTEGER); ps.setNull(3,Types.INTEGER);}
+            else            { ps.setInt (2,cardId);       ps.setInt (3,cardId);}
+            try(ResultSet rs = ps.executeQuery()){
+                List<Transactions> l = new ArrayList<>();
+                while(rs.next()) l.add(mapRow(rs));
+                return l;
+            }
+        }
+    }
+
+    public double sumByUserTypeAndCard(int userId,TransactionType tp,Integer cardId) throws SQLException{
+        String sql = """
+      SELECT COALESCE(SUM(
+        CASE WHEN TIPO_TRANSACAO IN ('EXPENSE','INVESTMENT')
+             THEN -VALOR ELSE VALOR END),0) AS TOTAL
+        FROM T_TRANSACOES
+       WHERE T_USUARIOS_ID_USUARIO = ?
+         AND TIPO_TRANSACAO = ?
+         AND ( ? IS NULL OR T_CARTOES_ID_CARTAO = ? )
+   """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setInt(1,userId); ps.setString(2,tp.name());
+            if(cardId==null){ ps.setNull(3,Types.INTEGER); ps.setNull(4,Types.INTEGER);}
+            else            { ps.setInt (3,cardId);       ps.setInt (4,cardId);}
+            try(ResultSet rs = ps.executeQuery()){
+                return rs.next()? rs.getDouble("TOTAL"):0;
+            }
+        }
+    }
+
+
 
     /* ---------------------- helpers ------------------------------------------------------- */
 

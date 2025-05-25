@@ -11,6 +11,17 @@
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
 
   <style>
+    .tx-block{
+      max-height:calc(100vh - 420px); /* ocupa resto da página com folga */
+      min-height:260px;
+      overflow-y:auto;
+    }
+    .tx-block:empty::before{
+      content:"Sem transações ainda";
+      display:block;text-align:center;
+      margin-top:3rem;color:#adb5bd;
+    }
+
     .cards-wrap  {position:relative;padding:1rem;background:#6c757d;border-radius:.5rem;}
     .h-scroll {
       overflow-x: auto;
@@ -81,19 +92,20 @@
   <!-- =================== ROW: CARTÕES + RESUMO =================== -->
   <div class="row gy-4 mb-5">
 
-    <!-- Cartões -->
+    <!-- =============== BLOCO: CARTÕES ================= -->
     <div class="col-12 col-lg-5">
       <h5 class="mb-2">Cartões</h5>
+      <h6 class="mb-3">Gerencia todos os seus cartoes aqui...</h6>
 
       <div class="bg-secondary rounded p-3 cards-wrap">
 
-        <!-- carrossel -->
+        <!-- carrossel ------------------------------------------------- -->
         <div class="h-scroll d-flex">
 
           <c:forEach items="${cards}" var="c">
             <div class="card-item">
 
-              <!-- nome (reticências via CSS) -->
+              <!-- apelido do cartão (reticências se longo) -->
               <h6 class="mb-1 card-name">
                 <c:choose>
                   <c:when test="${fn:length(c.name) > 17}">
@@ -107,20 +119,26 @@
               <small class="d-block">${c.type}</small>
 
               <small class="d-flex justify-content-between">
-                <span>
-                  Val:
-                  ${fn:substring(c.validity, 5, 7)}/${fn:substring(c.validity, 2, 4)}
-                </span>
-                <span>${c.flag}</span>
+            <span>
+              Val:
+              ${fn:substring(c.validity,5,7)}/${fn:substring(c.validity,2,4)}
+            </span>
+
+                <!-- imagem só se houver bandeira -->
+                <c:if test="${not empty c.flag}">
+                  <img src="${pageContext.request.contextPath}/img/flags/${c.flag.img}"
+                       alt="${c.flag}" width="26" height="18"/>
+                </c:if>
               </small>
 
-
-              <!-- botões -->
+              <!-- botões de ação ------------------------------------- -->
               <div class="card-actions">
                 <button class="btn btn-sm btn-outline-light me-1"
                         data-bs-toggle="modal" data-bs-target="#editCardModal"
                         data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
-                        data-type="${c.type}" data-validity="${c.validity}" data-flag="${c.flag}">✎</button>
+                        data-type="${c.type}" data-validity="${c.validity}"
+                        data-flag="${c.flag}">✎</button>
+
                 <form class="d-inline" method="post"
                       action="${pageContext.request.contextPath}/card"
                       onclick="event.stopPropagation()">
@@ -134,17 +152,19 @@
 
         </div><!-- /h-scroll -->
 
-        <!-- botão + -->
-        <button class="add-card-btn" data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
+        <!-- botão + para novo cartão -->
+        <button class="add-card-btn"
+                data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
 
-        <!-- barra de scroll (hint) -->
+        <!-- barra‐dica de scroll -->
         <div class="scroll-hint" id="scrollHint"></div>
       </div>
-    </div><!-- /cartões -->
+    </div><!-- /Cartões -->
 
     <!-- Resumo ------------------------------------------------------ -->
     <div class="col-12 col-lg-7 d-flex flex-column">
       <h5 class="mb-2">Resumo</h5>
+      <h6 class="mb-3">Confira suas entradas e despesas semanais...</h6>
 
       <!-- row-cols-* controla colunas; 1 nos xs, 3 a partir de sm -->
       <div class="row row-cols-1 row-cols-sm-3 g-3 flex-grow-1">
@@ -178,76 +198,109 @@
 
   </div><!-- /row Cartões + Resumo -->
 
-  <!-- =================== LISTA DE TRANSAÇÕES =================== -->
-  <!-- usa grid bootstrap; empilha em celulares automaticamente -->
-  <div class="row g-3">
+  <!-- ================= BLOCO: TRANSAÇÕES ================= -->
+  <div class="col-12">
 
-    <div class="col-md-4">
-      <h5 class="mb-2">Entradas
-        <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="INCOME">+</button>
-      </h5>
-      <div class="bg-secondary rounded p-3 tx-block">
-        <c:forEach items="${txIncome}" var="t">
-          <div class="d-flex justify-content-between border-bottom py-2">
-            <div>
-              <strong>R$ ${t.value}</strong>
-              <small class="d-block">${t.payMethod}</small>
-            </div>
-            <div>
-              <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                      data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-            </div>
-          </div>
-        </c:forEach>
-      </div>
+    <!-- título principal -->
+    <h5 class="mb-2">Transações</h5>
+
+    <!-- subtítulo + filtros (mesma linha) -->
+    <div class="d-flex justify-content-between align-items-end mb-3">
+      <h6 class="mb-0">Movimentos recentes</h6>
+
+      <form class="d-flex gap-2" method="get"
+            action="${pageContext.request.contextPath}/dashboard">
+        <select name="card" class="form-select form-select-sm">
+          <option value="">Todos os cartões</option>
+          <c:forEach items="${cards}" var="cd">
+            <option value="${cd.id}"
+              ${cd.id == selectedCard ? 'selected' : ''}>
+                ${cd.name}
+            </option>
+          </c:forEach>
+        </select>
+        <button class="btn btn-sm btn-outline-light">Filtrar</button>
+      </form>
     </div>
 
-    <div class="col-md-4">
-      <h5 class="mb-2">Saídas
-        <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="EXPENSE">+</button>
-      </h5>
-      <div class="bg-secondary rounded p-3 tx-block">
-        <c:forEach items="${txExpense}" var="t">
-          <div class="d-flex justify-content-between border-bottom py-2">
-            <div>
-              <strong>R$ ${t.value}</strong>
-              <small class="d-block">${t.payMethod}</small>
-            </div>
-            <div>
-              <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                      data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-            </div>
+    <!-- conteúdo com fundo igual ao bloco de cartões -------- -->
+    <div class="bg-secondary rounded p-3">
+
+      <div class="row g-3">
+
+        <!-- ========== ENTRADAS ========== -->
+        <div class="col-md-4">
+          <h6 class="mb-2">Entradas
+            <button class="btn btn-sm btn-outline-light float-end"
+                    data-bs-toggle="modal" data-bs-target="#newTxModal"
+                    data-type="INCOME">+</button>
+          </h6>
+
+          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
+            <c:forEach items="${txIncome}" var="t">
+              <div class="d-flex justify-content-between border-bottom py-2">
+                <div>
+                  <strong>R$ ${t.value}</strong>
+                  <small class="d-block">${t.payMethod}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light"
+                        data-bs-toggle="modal" data-bs-target="#editTxModal"
+                        data-id="${t.id}">✎</button>
+              </div>
+            </c:forEach>
           </div>
-        </c:forEach>
-      </div>
-    </div>
+        </div>
 
-    <div class="col-md-4">
-      <h5 class="mb-2">Investimentos
-        <button class="btn btn-sm btn-outline-light float-end"
-                data-bs-toggle="modal" data-bs-target="#newTxModal" data-type="INVESTMENT">+</button>
-      </h5>
-      <div class="bg-secondary rounded p-3 tx-block">
-        <c:forEach items="${txInvestment}" var="t">
-          <div class="d-flex justify-content-between border-bottom py-2">
-            <div>
-              <strong>R$ ${t.value}</strong>
-              <small class="d-block">${t.payMethod}</small>
-            </div>
-            <div>
-              <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                      data-bs-target="#editTxModal" data-id="${t.id}">✎</button>
-            </div>
+        <!-- ========== SAÍDAS ========== -->
+        <div class="col-md-4">
+          <h6 class="mb-2">Saídas
+            <button class="btn btn-sm btn-outline-light float-end"
+                    data-bs-toggle="modal" data-bs-target="#newTxModal"
+                    data-type="EXPENSE">+</button>
+          </h6>
+
+          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
+            <c:forEach items="${txExpense}" var="t">
+              <div class="d-flex justify-content-between border-bottom py-2">
+                <div>
+                  <strong>R$ ${t.value}</strong>
+                  <small class="d-block">${t.payMethod}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light"
+                        data-bs-toggle="modal" data-bs-target="#editTxModal"
+                        data-id="${t.id}">✎</button>
+              </div>
+            </c:forEach>
           </div>
-        </c:forEach>
-      </div>
-    </div>
+        </div>
 
-  </div> <!-- /transações -->
+        <!-- ========== INVESTIMENTOS ========== -->
+        <div class="col-md-4">
+          <h6 class="mb-2">Investimentos
+            <button class="btn btn-sm btn-outline-light float-end"
+                    data-bs-toggle="modal" data-bs-target="#newTxModal"
+                    data-type="INVESTMENT">+</button>
+          </h6>
 
-</div> <!-- /container -->
+          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
+            <c:forEach items="${txInvestment}" var="t">
+              <div class="d-flex justify-content-between border-bottom py-2">
+                <div>
+                  <strong>R$ ${t.value}</strong>
+                  <small class="d-block">${t.payMethod}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light"
+                        data-bs-toggle="modal" data-bs-target="#editTxModal"
+                        data-id="${t.id}">✎</button>
+              </div>
+            </c:forEach>
+          </div>
+        </div>
+
+      </div><!-- /row -->
+    </div><!-- /bg-secondary -->
+  </div><!-- /col-12 -->
+</div>
 
 
 <!-- ================== MODAIS (formulários) =============================== -->

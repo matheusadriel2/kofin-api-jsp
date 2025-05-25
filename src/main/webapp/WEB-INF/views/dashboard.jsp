@@ -268,7 +268,18 @@
         <div class="col">
           <button class="btn btn-sm btn-outline-light">Filtrar</button>
         </div>
+        <%-- ---------- BOTÃO “LIMPAR” (aparece só quando há parâmetros) --------- --%>
+        <c:if test="${param.card  ne null or
+               param.cat   ne null or
+               param.q     ne null or
+               param.pm    ne null or
+               param.vmin  ne null or
+               param.vmax  ne null}">
+          <a href="${pageContext.request.contextPath}/dashboard"
+             class="btn btn-sm btn-outline-warning ms-1">Limpar</a>
+        </c:if>
       </form>
+
     </div>
 
     <!-- colunas -------------------------------------------------------------- -->

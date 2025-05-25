@@ -5,6 +5,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kofin • Dashboard</title>
 
   <link rel="stylesheet"
@@ -289,6 +290,25 @@
       }
     }
 
+    /* aplica um padding interno extra em todas as larguras */
+    main {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    /* quando a sidebar está colapsada (64px), soma mais 0.5rem */
+    @media (min-width: 992px) and (max-width: 1599.98px) {
+      main {
+        margin-left: calc(64px + 0.5rem);
+      }
+    }
+
+    /* quando a sidebar está expandida (220px), soma mais 0.5rem */
+    @media (min-width: 1600px) {
+      main {
+        margin-left: calc(220px + 0.5rem);
+      }
+    }
 
 
     /* remove bullet padrão do UL colado no offcanvas */
@@ -308,9 +328,8 @@
     <!-- brand  -->
     <a href="${pageContext.request.contextPath}/dashboard"
        class="navbar-brand d-flex align-items-center">
-      <img src="${pageContext.request.contextPath}/img/logo.svg"
-           alt="Kofin" width="28" height="28" class="me-2">
-      <strong>Kofin</strong>
+      <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
+           alt="Kofin" width="32" height="32" class="me-2">
     </a>
 
     <!-- à direita -->
@@ -330,9 +349,8 @@
   <a href="${pageContext.request.contextPath}/dashboard"
      class="brand text-decoration-none text-light d-flex align-items-center justify-content-center py-3">
     <!-- ícone ou imagem pequena   -->
-    <img src="${pageContext.request.contextPath}/img/logo.svg"
-         alt="Kofin" width="28" height="28" class="me-0 me-lg-2">
-    <span class="d-none d-lg-inline fw-bold">Kofin</span>
+    <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
+         alt="Kofin" width="32" height="32" class="me-0 me-lg-2">
   </a>
 
   <!-- Navegação -->
@@ -380,7 +398,12 @@
 <!-- Off-canvas para tablet/móvel -->
 <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasNav">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title">Kofin</h5>
+    <a href="${pageContext.request.contextPath}/dashboard"
+       class="brand text-decoration-none text-light d-flex align-items-center justify-content-center py-3">
+      <!-- ícone ou imagem pequena   -->
+      <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
+           alt="Kofin" width="40" height="40" class="me-0 me-lg-2">
+    </a>
     <button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body p-0">
@@ -391,7 +414,7 @@
 <!-- ────────────────  CONTEÚDO  ──────────────── -->
 <main class="flex-grow-1">
 
-<div class="container py-4">
+  <div class="container-fluid py-4">
 
   <!-- header -->
   <div class="d-flex justify-content-between mb-4">
@@ -402,7 +425,7 @@
   <div class="row gy-4 mb-5">
 
     <!-- =============== BLOCO: CARTÕES ================= -->
-    <div class="col-12 col-lg-5">
+    <div class="col-12 col-xl-5">
       <h5 class="mb-2">Cartões</h5>
       <h6 class="mb-3">Gerencia todos os seus cartoes aqui...</h6>
 
@@ -471,12 +494,12 @@
     </div><!-- /Cartões -->
 
     <!-- Resumo ------------------------------------------------------ -->
-    <div class="col-12 col-lg-7 d-flex flex-column">
+    <div class="col-12 col-xl-7 d-flex flex-column">
       <h5 class="mb-2">Resumo</h5>
       <h6 class="mb-3">Confira suas entradas e despesas semanais...</h6>
 
       <!-- row-cols-* controla colunas; 1 nos xs, 3 a partir de sm -->
-      <div class="row row-cols-1 row-cols-sm-3 g-3 flex-grow-1">
+      <div class="row row-cols-1 row-cols-md-3 g-3 flex-grow-1">
 
         <div class="col d-flex">
           <div class="bg-success bg-opacity-25 rounded p-3 w-100 text-center d-flex flex-column justify-content-center">
@@ -591,7 +614,7 @@
 
     <!-- colunas -------------------------------------------------------------- -->
     <div class="bg-secondary rounded p-3">
-      <div class="row g-3 align-items-stretch">
+      <div class="row row-cols-1 row-cols-md-3 g-3 align-items-stretch">
 
         <!-- Entradas -->
         <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">

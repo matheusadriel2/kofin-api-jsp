@@ -563,7 +563,12 @@
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
           <select name="payMethod" id="newPayMethod" class="form-select">
-            <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
+            <c:forEach var="pm" items="${paymentMethods}">
+              <option value="${pm.name()}"
+                ${pm.name() == param.pm ? 'selected' : ''}>
+                  ${pm.name()}
+              </option>
+            </c:forEach>
           </select>
         </div>
 
@@ -644,8 +649,14 @@
 
         <div class="mb-3">
           <label class="form-label">Forma de pagamento</label>
+          <label class="form-label">Forma de pagamento</label>
           <select name="payMethod" id="editPayMethod" class="form-select">
-            <option>CASH</option><option>CARD</option><option>PIX</option><option>BANK</option>
+            <c:forEach var="pm" items="${paymentMethods}">
+              <option value="${pm.name()}"
+                ${pm.name() == editPayMethod.value ? 'selected' : ''}>
+                  ${pm.name()}
+              </option>
+            </c:forEach>
           </select>
         </div>
 

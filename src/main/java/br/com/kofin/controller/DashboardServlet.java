@@ -4,6 +4,7 @@ import br.com.kofin.dao.CardsDao;
 import br.com.kofin.dao.TransactionsDao;
 import br.com.kofin.model.entities.Cards;
 import br.com.kofin.model.entities.Transactions;
+import br.com.kofin.model.enums.PaymentMethod;
 import br.com.kofin.model.enums.TransactionType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -49,28 +50,34 @@ public class DashboardServlet extends HttpServlet {
                     tDao.listByUserAndCard(userId, cardFilter);
 
             /* ----- parâmetros extras de filtro ---------------------------- */
-            String q       = req.getParameter("q");          // nome contém
-            String cat     = req.getParameter("cat");        // categoria contém
-            String pm      = req.getParameter("pm");         // método exato
-            String vminStr = req.getParameter("vmin");       // >=
-            String vmaxStr = req.getParameter("vmax");       // <=
+            String q       = req.getParameter("q");    // nome contém
+            String cat     = req.getParameter("cat");  // categoria contém
+            String pm      = req.getParameter("pm");   // método exato
+            String vminStr = req.getParameter("vmin");// >=
+            String vmaxStr = req.getParameter("vmax");// <=
 
-            Double vmin = (vminStr!=null && !vminStr.isBlank()) ? Double.parseDouble(vminStr) : null;
-            Double vmax = (vmaxStr!=null && !vmaxStr.isBlank()) ? Double.parseDouble(vmaxStr) : null;
+            Double vmin = (vminStr!=null && !vminStr.isBlank())
+                    ? Double.parseDouble(vminStr)
+                    : null;
+            Double vmax = (vmaxStr!=null && !vmaxStr.isBlank())
+                    ? Double.parseDouble(vmaxStr)
+                    : null;
 
-            /* ------- aplica filtros em memória (já veio filtrado por cartão) ---------- */
+            /* ------- aplica filtros em memória ---------- */
             all = all.stream()
-                    .filter(t -> q   == null || q.isBlank() ||
-                            t.getName().toLowerCase().contains(q.toLowerCase()))
-                    .filter(t -> cat == null || cat.isBlank() ||
-                            (t.getCategory()!=null && t.getCategory().toLowerCase()
-                                    .contains(cat.toLowerCase())))
-                    .filter(t -> pm  == null || pm.isBlank() ||
-                            t.getPayMethod().name().equalsIgnoreCase(pm))
+                    .filter(t -> q   == null || q.isBlank()
+                            || t.getName().toLowerCase()
+                            .contains(q.toLowerCase()))
+                    .filter(t -> cat == null || cat.isBlank()
+                            || (t.getCategory()!=null
+                            && t.getCategory().toLowerCase()
+                            .contains(cat.toLowerCase())))
+                    .filter(t -> pm  == null || pm.isBlank()
+                            || t.getPayMethod().name()
+                            .equalsIgnoreCase(pm))
                     .filter(t -> vmin==null || t.getValue() >= vmin)
                     .filter(t -> vmax==null || t.getValue() <= vmax)
                     .toList();
-
 
             Map<TransactionType, List<Transactions>> grouped =
                     all.stream()
@@ -87,7 +94,6 @@ public class DashboardServlet extends HttpServlet {
             YearMonth ym = YearMonth.now();
             double incomeMonth  = sum(all, TransactionType.INCOME,  ym);
             double expenseMonth = sum(all, TransactionType.EXPENSE, ym);
-
             double incomeTotal  = sum(all, TransactionType.INCOME,  null);
             double expenseTotal = sum(all, TransactionType.EXPENSE, null);
 
@@ -98,6 +104,9 @@ public class DashboardServlet extends HttpServlet {
             req.setAttribute("saldoMes",     incomeMonth  - expenseMonth);
             req.setAttribute("saldoTotal",   incomeTotal  - expenseTotal);
 
+            /* --- NOVO: métodos de pagamento para popular o <select> ---- */
+            req.setAttribute("paymentMethods", PaymentMethod.values());
+
         } catch (SQLException e) {
             throw new ServletException("Falha ao carregar dashboard", e);
         }
@@ -106,15 +115,14 @@ public class DashboardServlet extends HttpServlet {
                 .forward(req, resp);
     }
 
-    /* soma valores, podendo filtrar por tipo e/ou mês */
     private double sum(List<Transactions> list,
                        TransactionType type,
                        YearMonth month) {
-
         return list.stream()
                 .filter(t -> t.getType() == type)
                 .filter(t -> month == null ||
-                        YearMonth.from(t.getTransactionDate()).equals(month))
+                        YearMonth.from(t.getTransactionDate())
+                                .equals(month))
                 .mapToDouble(Transactions::getValue)
                 .sum();
     }

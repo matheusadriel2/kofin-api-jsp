@@ -205,18 +205,69 @@
 
     <h5 class="mb-2">Transações</h5>
 
-    <!-- filtros (cartão) ----------------------------------------------------- -->
-    <div class="d-flex justify-content-between align-items-end mb-3">
-      <h6 class="mb-0">Movimentos recentes</h6>
+    <!-- filtros (multi-critério) ------------------------------------------------ -->
+    <div class="d-flex flex-wrap gap-3 align-items-end mb-3">
 
-      <form class="d-flex gap-2" method="get" action="${pageContext.request.contextPath}/dashboard">
-        <select name="card" class="form-select form-select-sm">
-          <option value="">Todos os cartões</option>
-          <c:forEach items="${cards}" var="cd">
-            <option value="${cd.id}" ${cd.id == selectedCard ? 'selected' : ''}>${cd.name}</option>
-          </c:forEach>
-        </select>
-        <button class="btn btn-sm btn-outline-light">Filtrar</button>
+      <h6 class="mb-0 me-auto">Movimentos recentes</h6>
+
+      <form class="row row-cols-auto g-2 align-items-end"
+            method="get"
+            action="${pageContext.request.contextPath}/dashboard">
+
+        <!-- cartão -->
+        <div class="col">
+          <label class="form-label mb-0 small">Cartão</label>
+          <select name="card" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            <c:forEach items="${cards}" var="cd">
+              <option value="${cd.id}" ${cd.id == selectedCard ? "selected" : ""}>
+                  ${cd.name}
+              </option>
+            </c:forEach>
+          </select>
+        </div>
+
+        <!-- categoria -->
+        <div class="col">
+          <label class="form-label mb-0 small">Categoria</label>
+          <input type="text" name="cat" class="form-control form-control-sm"
+                 placeholder="ex: mercado"
+                 value="${param.cat}"/>
+        </div>
+
+        <!-- nome (search) -->
+        <div class="col">
+          <label class="form-label mb-0 small">Nome</label>
+          <input type="text" name="q" class="form-control form-control-sm"
+                 placeholder="buscar..."
+                 value="${param.q}"/>
+        </div>
+
+        <!-- método -->
+        <div class="col">
+          <label class="form-label mb-0 small">Método</label>
+          <select name="pm" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            <c:forEach var="m" items="${['CASH','CARD','PIX','BANK']}">
+              <option ${m==param.pm?'selected':''}>${m}</option>
+            </c:forEach>
+          </select>
+        </div>
+
+        <!-- valor min / max -->
+        <div class="col">
+          <label class="form-label mb-0 small">Valor R$ (de-até)</label>
+          <div class="input-group input-group-sm">
+            <input type="number" step="0.01" name="vmin" class="form-control"
+                   placeholder="min" value="${param.vmin}"/>
+            <input type="number" step="0.01" name="vmax" class="form-control"
+                   placeholder="máx" value="${param.vmax}"/>
+          </div>
+        </div>
+
+        <div class="col">
+          <button class="btn btn-sm btn-outline-light">Filtrar</button>
+        </div>
       </form>
     </div>
 
@@ -224,196 +275,31 @@
     <div class="bg-secondary rounded p-3">
       <div class="row g-3">
 
-        <!-- ========== ENTRADAS ========== -->
-        <div class="col-md-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">Entradas</h6>
-            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
-                    style="width:28px;height:28px;line-height:26px"
-                    data-bs-toggle="modal" data-bs-target="#newTxModal"
-                    data-type="INCOME">+</button>
-          </div>
+        <!-- Entradas -->
+        <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
+          <jsp:param name="title"    value="Entradas"/>
+          <jsp:param name="listName" value="txIncome"/>
+          <jsp:param name="type"     value="INCOME"/>
+        </jsp:include>
 
-          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
-            <c:forEach items="${txIncome}" var="t">
-              <div class="tx-item position-relative border-bottom py-2">
+        <!-- Saídas -->
+        <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
+          <jsp:param name="title"    value="Saídas"/>
+          <jsp:param name="listName" value="txExpense"/>
+          <jsp:param name="type"     value="EXPENSE"/>
+        </jsp:include>
 
-                <!-- conteúdo -->
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <strong>${t.name}</strong>
-                    <c:if test="${not empty t.category}">
-                      <small class="d-block text-muted">${t.category}</small>
-                    </c:if>
-                    <small class="text-secondary">
-                        ${fn:substring(t.transactionDate,11,16)}
-                        ${fn:substring(t.transactionDate,8,10)}/
-                        ${fn:substring(t.transactionDate,5,7)}/
-                        ${fn:substring(t.transactionDate,2,4)}
-                    </small>
-                  </div>
+        <!-- Investimentos -->
+        <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
+          <jsp:param name="title"    value="Investimentos"/>
+          <jsp:param name="listName" value="txInvestment"/>
+          <jsp:param name="type"     value="INVESTMENT"/>
+        </jsp:include>
 
-                  <div class="text-end">
-                    <strong>R$ ${t.value}</strong>
-                    <small class="d-block">
-                      <c:choose>
-                        <c:when test="${t.payMethod == 'CARD'}">
-                          CARD&nbsp;-&nbsp;****
-                          <c:forEach items="${cards}" var="cd">
-                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
-                          </c:forEach>
-                        </c:when>
-                        <c:otherwise>${t.payMethod}</c:otherwise>
-                      </c:choose>
-                    </small>
-                  </div>
-                </div>
 
-                <!-- botões -->
-                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
-                  <button class="btn btn-sm btn-outline-light me-1"
-                          data-bs-toggle="modal" data-bs-target="#editTxModal"
-                          data-id="${t.id}" data-type="INCOME" data-cardid="${t.cardId}">✎</button>
-
-                  <form class="d-inline" method="post"
-                        action="${pageContext.request.contextPath}/transaction"
-                        onmousedown="event.stopPropagation()">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="id"     value="${t.id}"/>
-                    <button class="btn btn-sm btn-outline-danger">🗑</button>
-                  </form>
-                </div>
-              </div>
-            </c:forEach>
-          </div>
-        </div>
-
-        <!-- ========== SAÍDAS ========== -->
-        <div class="col-md-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">Saídas</h6>
-            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
-                    style="width:28px;height:28px;line-height:26px"
-                    data-bs-toggle="modal" data-bs-target="#newTxModal"
-                    data-type="EXPENSE">+</button>
-          </div>
-
-          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
-            <c:forEach items="${txExpense}" var="t">
-              <div class="tx-item position-relative border-bottom py-2">
-
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <strong>${t.name}</strong>
-                    <c:if test="${not empty t.category}">
-                      <small class="d-block text-muted">${t.category}</small>
-                    </c:if>
-                    <small class="text-secondary">
-                        ${fn:substring(t.transactionDate,11,16)}
-                        ${fn:substring(t.transactionDate,8,10)}/
-                        ${fn:substring(t.transactionDate,5,7)}/
-                        ${fn:substring(t.transactionDate,2,4)}
-                    </small>
-                  </div>
-
-                  <div class="text-end">
-                    <strong>R$ ${t.value}</strong>
-                    <small class="d-block">
-                      <c:choose>
-                        <c:when test="${t.payMethod == 'CARD'}">
-                          CARD&nbsp;-&nbsp;****
-                          <c:forEach items="${cards}" var="cd">
-                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
-                          </c:forEach>
-                        </c:when>
-                        <c:otherwise>${t.payMethod}</c:otherwise>
-                      </c:choose>
-                    </small>
-                  </div>
-                </div>
-
-                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
-                  <button class="btn btn-sm btn-outline-light me-1"
-                          data-bs-toggle="modal" data-bs-target="#editTxModal"
-                          data-id="${t.id}" data-type="EXPENSE" data-cardid="${t.cardId}">✎</button>
-
-                  <form class="d-inline" method="post"
-                        action="${pageContext.request.contextPath}/transaction"
-                        onmousedown="event.stopPropagation()">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="id"     value="${t.id}"/>
-                    <button class="btn btn-sm btn-outline-danger">🗑</button>
-                  </form>
-                </div>
-              </div>
-            </c:forEach>
-          </div>
-        </div>
-
-        <!-- ========== INVESTIMENTOS ========== -->
-        <div class="col-md-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">Investimentos</h6>
-            <button class="btn btn-sm btn-outline-light rounded-circle p-0"
-                    style="width:28px;height:28px;line-height:26px"
-                    data-bs-toggle="modal" data-bs-target="#newTxModal"
-                    data-type="INVESTMENT">+</button>
-          </div>
-
-          <div class="bg-dark bg-opacity-25 rounded p-3 tx-block">
-            <c:forEach items="${txInvestment}" var="t">
-              <div class="tx-item position-relative border-bottom py-2">
-
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <strong>${t.name}</strong>
-                    <c:if test="${not empty t.category}">
-                      <small class="d-block text-muted">${t.category}</small>
-                    </c:if>
-                    <small class="text-secondary">
-                        ${fn:substring(t.transactionDate,11,16)}
-                        ${fn:substring(t.transactionDate,8,10)}/
-                        ${fn:substring(t.transactionDate,5,7)}/
-                        ${fn:substring(t.transactionDate,2,4)}
-                    </small>
-                  </div>
-
-                  <div class="text-end">
-                    <strong>R$ ${t.value}</strong>
-                    <small class="d-block">
-                      <c:choose>
-                        <c:when test="${t.payMethod == 'CARD'}">
-                          CARD&nbsp;-&nbsp;****
-                          <c:forEach items="${cards}" var="cd">
-                            <c:if test="${cd.id == t.cardId}">${cd.last4}</c:if>
-                          </c:forEach>
-                        </c:when>
-                        <c:otherwise>${t.payMethod}</c:otherwise>
-                      </c:choose>
-                    </small>
-                  </div>
-                </div>
-
-                <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
-                  <button class="btn btn-sm btn-outline-light me-1"
-                          data-bs-toggle="modal" data-bs-target="#editTxModal"
-                          data-id="${t.id}" data-type="INVESTMENT" data-cardid="${t.cardId}">✎</button>
-
-                  <form class="d-inline" method="post"
-                        action="${pageContext.request.contextPath}/transaction"
-                        onmousedown="event.stopPropagation()">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="id"     value="${t.id}"/>
-                    <button class="btn btn-sm btn-outline-danger">🗑</button>
-                  </form>
-                </div>
-              </div>
-            </c:forEach>
-          </div>
-        </div>
-
-      </div><!-- /row -->
+      </div>
     </div><!-- /bg-secondary -->
+
   </div><!-- /col-12 -->
 
 </div>
@@ -705,8 +591,35 @@
   </div>
 </div>
 
+<!-- ========== MODAL: RECIBO ========== -->
+<div class="modal fade" id="viewTxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
 
+      <div class="modal-header bg-secondary text-light">
+        <h5 class="modal-title">Recibo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
+      <div class="modal-body">
+        <table class="table table-sm text-light mb-0">
+          <tbody>
+          <tr><th>Nome</th>      <td id="rc-name"></td></tr>
+          <tr><th>Categoria</th> <td id="rc-cat"></td></tr>
+          <tr><th>Tipo</th>      <td id="rc-type"></td></tr>
+          <tr><th>Valor</th>     <td id="rc-val"></td></tr>
+          <tr><th>Método</th>    <td id="rc-pm"></td></tr>
+          <tr><th>Data</th>      <td id="rc-date"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
   // toggle mobile tap
@@ -821,6 +734,28 @@
     document.getElementById(id).addEventListener('hidden.bs.modal',e=>e.target.querySelector('form').reset());
   });
 
+  /* =====================  RECIBO  ===================== */
+  document.querySelectorAll('.tx-item').forEach(it=>{
+    it.addEventListener('click',e=>{
+      if (e.target.closest('.tx-actions')) return;        // ignora clique nos botões
+      fillReceipt(it.dataset);                            // preenche dados
+      bootstrap.Modal.getOrCreateInstance('#viewTxModal').show();
+    });
+  });
+
+  function fillReceipt(d){
+    rc_name.textContent = d.name || '-';
+    rc_cat .textContent = d.cat  || '-';
+    rc_type.textContent = d.type;
+    rc_val .textContent = 'R$ ' + Number(d.val).toFixed(2);
+    rc_pm  .textContent = d.pm;
+    rc_date.textContent = d.date.replace('T',' ').slice(0,16);
+  }
+
+  /* tap em mobile → mostra/oculta ícones flutuantes */
+  document.querySelectorAll('.tx-item').forEach(it=>{
+    it.addEventListener('touchstart',()=>it.classList.toggle('show-actions'),{passive:true});
+  });
 </script>
 
 

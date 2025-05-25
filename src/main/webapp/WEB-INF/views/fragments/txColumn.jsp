@@ -79,9 +79,9 @@
                             </div>
                         </div>
 
-                        <!-- BOTÕES -->
-                        <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1 opacity-0">
-                            <!-- visualizar -->
+                        <!-- BOTÕES (flutuantes) -->
+                        <div class="tx-actions position-absolute top-0 end-0 me-1 mt-1">
+                            <!-- recibo -->
                             <button class="btn btn-sm btn-outline-info me-1"
                                     data-action="view-receipt"
                                     data-bs-toggle="modal"

@@ -91,6 +91,31 @@
 
     /* ============ LISTA de TRANSAÇÕES ============ */
     .tx-block{max-height:420px;overflow-y:auto;}
+
+    /* mostra os botões no hover ou após clique/tap */
+    .tx-item:hover .tx-actions,
+    .tx-item.show-actions .tx-actions{
+      opacity:1 !important;     /* sobrepõe utility classes do Bootstrap   */
+      pointer-events:auto;
+    }
+    /* -------------------------------------------------------------------- */
+    /* 1.  estado NORMAL – ícones ocultos                                   */
+    .tx-actions{
+      opacity:0;                 /* invisível                              */
+      pointer-events:none;       /* nada clicável                          */
+      transition:opacity .15s;   /* animação suave                         */
+      position:absolute; top:4px; right:4px;          /* onde já estavam   */
+      display:flex; gap:.25rem; z-index:5;             /* idem             */
+    }
+
+    /* 2.  estado VISÍVEL – hover ou clique/tap                             */
+    .tx-item:hover .tx-actions,
+    .tx-item.show-actions .tx-actions{
+      opacity:1 !important;      /* força aparecer (sobrepõe utilities)    */
+      pointer-events:auto;       /* agora pode clicar                      */
+    }
+
+
   </style>
 </head>
 <body class="bg-dark text-light">
@@ -757,13 +782,28 @@
   });
 
   /* =====================  RECIBO  ===================== */
+  document
+          .querySelectorAll('[data-action="view-receipt"]')
+          .forEach(btn=>{
+            btn.addEventListener('click', e=>{
+              e.stopPropagation();                     // não interfere no toggle
+              const tx = btn.closest('.tx-item');
+              fillReceipt(tx.dataset);                 // preenche tabela do modal
+              bootstrap
+                      .Modal
+                      .getOrCreateInstance('#viewTxModal')
+                      .show();
+            });
+          });
+
+  /* abrir / fechar ícones flutuantes ------------------- */
   document.querySelectorAll('.tx-item').forEach(it=>{
-    it.addEventListener('click',e=>{
-      if (e.target.closest('.tx-actions')) return;        // ignora clique nos botões
-      fillReceipt(it.dataset);                            // preenche dados
-      bootstrap.Modal.getOrCreateInstance('#viewTxModal').show();
+    it.addEventListener('click', e=>{
+      if (e.target.closest('.tx-actions')) return; // se clicou num ícone, ignora
+      it.classList.toggle('show-actions');         // só alterna visibilidade
     });
   });
+
 
   function fillReceipt(d){
     rc_name.textContent = d.name || '-';

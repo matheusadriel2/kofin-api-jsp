@@ -1,11 +1,5 @@
 package br.com.kofin.controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-
 import br.com.kofin.dao.TransactionsDao;
 import br.com.kofin.model.entities.Transactions;
 import br.com.kofin.model.enums.PaymentMethod;
@@ -13,113 +7,153 @@ import br.com.kofin.model.enums.Scheduled;
 import br.com.kofin.model.enums.TransactionType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
-@WebServlet("/transaction")
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+/**
+ * Servlet /transaction
+ * Ações:
+ *   GET  /transaction?type=INCOME            -> lista por tipo (mais recente primeiro)
+ *   GET  /transaction/view?id=123            -> detalhes
+ *   POST /transaction (action=create|update|delete)
+ */
+@WebServlet("/transaction/*")
 public class TransactionsServlet extends HttpServlet {
 
+    /* ------------------------ GET -------------------------------------------------------- */
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            String typeParam = request.getParameter("type");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-            if (typeParam == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo de transação não especificado.");
-                return;
-            }
-
-            TransactionType type;
-            try {
-                type = TransactionType.valueOf(typeParam.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo de transação inválido.");
-                return;
-            }
-
-            TransactionsDao transDAO = new TransactionsDao();
-            List<Transactions> trans = transDAO.getAllByType(type);
-
-            request.setAttribute("transactions", trans);
-            request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(request, response);
-
-        } catch (SQLException e) {
-            throw new ServletException("Erro ao buscar transações", e);
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
-    }
+        int userId = (Integer) session.getAttribute("userId");
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        /* rota /transaction/view?id= */
+        if (req.getPathInfo() != null && req.getPathInfo().startsWith("/view")) {
+            int id = Integer.parseInt(req.getParameter("id"));
+            try (TransactionsDao dao = new TransactionsDao()) {
+                Transactions t = dao.search(id);
+                req.setAttribute("transaction", t);
+                req.getRequestDispatcher("/WEB-INF/views/transactionDetail.jsp").forward(req, resp);
+            } catch (Exception e) {
+                throw new ServletException("Erro ao buscar transação.", e);
+            }
+            return;
+        }
 
-        if (action == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação não especificada.");
+        /* lista por tipo */
+        String typeParam = req.getParameter("type");
+        if (typeParam == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo de transação não especificado.");
             return;
         }
 
         try {
-            TransactionsDao dao = new TransactionsDao();
-
-            switch (action) {
-                case "create":
-                    Transactions newTransaction = extractTransactionFromRequest(request, false);
-                    Integer userId = (Integer) request.getSession().getAttribute("userId");
-                    if (userId == null) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Usuário não autenticado.");
-                        return;
-                    }
-                    dao.register(newTransaction, userId, null, null);
-                    break;
-
-                case "update":
-                    Transactions updateTransaction = extractTransactionFromRequest(request, true);
-                    dao.update(updateTransaction);
-                    break;
-
-                case "delete":
-                    Integer idToDelete = Integer.parseInt(requireParam(request, "id"));
-                    dao.delete(idToDelete);
-                    break;
-
-                default:
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
-                    return;
+            TransactionType type = TransactionType.valueOf(typeParam.toUpperCase());
+            List<Transactions> list;
+            try (TransactionsDao dao = new TransactionsDao()) {
+                list = dao.listByUserAndType(userId, type);
             }
+            req.setAttribute("transactions", list);
+            req.setAttribute("selectedType", typeParam);
+            req.getRequestDispatcher("/WEB-INF/views/transactions.jsp").forward(req, resp);
 
-            response.sendRedirect(request.getContextPath() + "/transaction?type=" + request.getParameter("type"));
-
-        } catch (Exception e) {
-            throw new ServletException("Erro ao processar transação", e);
+        } catch (IllegalArgumentException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo inválido.");
+        } catch (SQLException e) {
+            throw new ServletException("Erro ao listar transações.", e);
         }
     }
 
-    private Transactions extractTransactionFromRequest(HttpServletRequest request, boolean hasId) {
+    /* ------------------------ POST ------------------------------------------------------- */
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String action = req.getParameter("action");
+        if (action == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação não especificada.");
+            return;
+        }
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Usuário não autenticado.");
+            return;
+        }
+        int userId = (Integer) session.getAttribute("userId");
+
+        try (TransactionsDao dao = new TransactionsDao()) {
+            switch (action) {
+
+                /* ---------- criar -------------------------------------------------- */
+                case "create" -> {
+                    Transactions t = buildFromRequest(req, false);
+                    dao.register(t, userId);
+                }
+
+                /* ---------- editar -------------------------------------------------- */
+                case "update" -> {
+                    Transactions t = buildFromRequest(req, true);
+                    dao.update(t);
+                }
+
+                /* ---------- excluir ------------------------------------------------- */
+                case "delete" -> {
+                    int id = Integer.parseInt(required(req, "id"));
+                    dao.delete(id);
+                }
+
+                default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
+            }
+        } catch (Exception e) {
+            throw new ServletException("Falha ao processar transação.", e);
+        }
+
+        /* redireciona de volta para a lista do tipo atual */
+        resp.sendRedirect(req.getContextPath() + "/transaction?type=" + req.getParameter("type"));
+    }
+
+    /* -------------------- helpers -------------------------------------------------------- */
+
+    private Transactions buildFromRequest(HttpServletRequest req, boolean hasId) {
         Transactions t = new Transactions();
 
-        if (hasId) {
-            t.setId(Integer.parseInt(requireParam(request, "id")));
-        }
+        if (hasId) t.setId(Integer.parseInt(required(req, "id")));
 
         try {
-            t.setValue(Double.parseDouble(requireParam(request, "value")));
-            t.setPayMethod(PaymentMethod.valueOf(requireParam(request, "payMethod").toUpperCase()));
-            t.setType(TransactionType.valueOf(requireParam(request, "type").toUpperCase()));
-            t.setIsScheduled(Scheduled.valueOf(requireParam(request, "scheduled").toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Valor inválido em enums de transação.");
+            t.setType(TransactionType.valueOf(required(req, "type").toUpperCase()));
+            t.setValue(Double.parseDouble(required(req, "value")));
+            t.setPayMethod(PaymentMethod.valueOf(required(req, "payMethod").toUpperCase()));
+            t.setTransfer("S".equalsIgnoreCase(req.getParameter("transfer")));
+            t.setIsScheduled(Scheduled.valueOf(required(req, "scheduled").toUpperCase()));
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Enum inválido: " + ex.getMessage());
         }
 
-        String transfer = request.getParameter("transfer");
-        t.setTransfer("S".equalsIgnoreCase(transfer));
+        /* opcional: cardId e accountId */
+        String cardParam = req.getParameter("cardId");
+        if (cardParam != null && !cardParam.isBlank()) t.setCardId(Integer.parseInt(cardParam));
 
-        String date = request.getParameter("date");
-        if (date != null && !date.isEmpty()) {
-            try {
-                t.setTransactionDate(LocalDateTime.parse(date));
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Formato de data inválido.");
-            }
+        String accParam = req.getParameter("accountId");
+        if (accParam != null && !accParam.isBlank()) t.setAccountId(Integer.parseInt(accParam));
+
+        /* data da transação */
+        String date = req.getParameter("date");
+        if (date != null && !date.isBlank()) {
+            try { t.setTransactionDate(LocalDateTime.parse(date)); }
+            catch (DateTimeParseException ex) { throw new IllegalArgumentException("Data inválida."); }
         } else {
             t.setTransactionDate(LocalDateTime.now());
         }
@@ -127,11 +161,10 @@ public class TransactionsServlet extends HttpServlet {
         return t;
     }
 
-    private String requireParam(HttpServletRequest request, String name) {
-        String value = request.getParameter(name);
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campo obrigatório ausente ou vazio: " + name);
-        }
-        return value;
+    private String required(HttpServletRequest req, String name) {
+        String v = req.getParameter(name);
+        if (v == null || v.isBlank())
+            throw new IllegalArgumentException("Campo obrigatório faltando: " + name);
+        return v;
     }
 }

@@ -1,90 +1,61 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+document.addEventListener('DOMContentLoaded', () => {
 
-    togglePasswordIcons.forEach(icon => {
-        const passwordInput = icon.closest('.input-group').querySelector('input');
+    /* ---------- alternar visibilidade da senha ---------- */
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        const pwdInput = icon.closest('.input-group').querySelector('input[type="password"],input[type="text"]');
 
-        icon.addEventListener('click', (e) => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            icon.classList.toggle('bi-eye');
-            icon.classList.toggle('bi-eye-slash');
+        icon.addEventListener('click', () => {
+            const isPwd   = pwdInput.type === 'password';
+            pwdInput.type = isPwd ? 'text' : 'password';
+            icon.classList.toggle('bi-eye',       isPwd);
+            icon.classList.toggle('bi-eye-slash', !isPwd);
         });
     });
 
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        const inputs = form.querySelectorAll('input:not([type="checkbox"])');
-        inputs.forEach(input => {
-            const parentElement = input.closest('.form-control')?.parentElement || 
-                                  input.closest('.input-group') || 
-                                  input.parentElement;
-            
-            parentElement.style.position = 'relative';
-        });
+    /* ---------- validação de cada formulário ---------- */
+    document.querySelectorAll('form').forEach(form => {
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        form.addEventListener('submit', ev => {
+            let valid = true;
 
-            const emailInput = form.querySelector('input[type="email"], input[type="text"][placeholder="E-mail"]');
-            const passwordInputs = form.querySelectorAll('input[type="password"]');
-            const fullNameInput = form.querySelector('input[placeholder="Nome completo"]');
-            const confirmPasswordInput = form.querySelector('input[placeholder="Confirme sua senha"]');
-
-            let isValid = true;
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput.value)) {
-                emailInput.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                emailInput.classList.remove('is-invalid');
+            /* -------- e-mail -------- */
+            const email = form.querySelector('input[type="email"]');
+            if (email) {
+                const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+                email.classList.toggle('is-invalid', !ok);
+                valid &&= ok;
             }
 
-            let passwordValue = '';
-            passwordInputs.forEach((passwordInput, index) => {
-                if (passwordInput.value.length < 8) {
-                    passwordInput.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    passwordInput.classList.remove('is-invalid');
-                }
-                
-                if (index === 0) passwordValue = passwordInput.value;
+            /* -------- senhas -------- */
+            const pwds      = form.querySelectorAll('input[type="password"]');
+            let   firstPwd  = '';
+            pwds.forEach((pwd, idx) => {
+                const ok = pwd.value.length >= 8;
+                pwd.classList.toggle('is-invalid', !ok);
+                valid &&= ok;
+                if (idx === 0) firstPwd = pwd.value;
             });
 
-            if (confirmPasswordInput) {
-                if (confirmPasswordInput.value !== passwordValue || confirmPasswordInput.value.length < 8) {
-                    confirmPasswordInput.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    confirmPasswordInput.classList.remove('is-invalid');
-                }
+            const pwdConfirm = form.querySelector('input[placeholder="Confirme sua senha"]');
+            if (pwdConfirm) {
+                const ok = pwdConfirm.value === firstPwd && pwdConfirm.value.length >= 8;
+                pwdConfirm.classList.toggle('is-invalid', !ok);
+                valid &&= ok;
             }
 
-            if (fullNameInput && fullNameInput.value.trim() === '') {
-                fullNameInput.classList.add('is-invalid');
-                isValid = false;
-            } else if (fullNameInput) {
-                fullNameInput.classList.remove('is-invalid');
+            /* -------- nome completo (cadastro) -------- */
+            const fullName = form.querySelector('input[placeholder="Nome completo"]');
+            if (fullName) {
+                const ok = fullName.value.trim() !== '';
+                fullName.classList.toggle('is-invalid', !ok);
+                valid &&= ok;
             }
 
-            if (isValid) {
-                const alertDiv = document.createElement('div');
-                alertDiv.classList.add('alert', 'alert-success', 'position-fixed', 'top-0', 'end-0', 'm-3', 'alert-dismissible', 'fade', 'show');
-                alertDiv.setAttribute('role', 'alert');
-                alertDiv.innerHTML = `
-                    Operação realizada com sucesso! 😁
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                
-                document.body.appendChild(alertDiv);
-
-                setTimeout(() => {
-                    const bsAlert = new bootstrap.Alert(alertDiv);
-                    bsAlert.close();
-                }, 3000);
+            /* -------- decide se bloqueia o submit -------- */
+            if (!valid) {
+                ev.preventDefault();          // bloqueia envio se houver erros
+                return;
             }
-        });
+       });
     });
 });

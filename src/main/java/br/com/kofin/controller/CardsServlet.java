@@ -1,14 +1,7 @@
 package br.com.kofin.controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
-
 import br.com.kofin.dao.CardsDao;
-import br.com.kofin.dao.UsersDao;
 import br.com.kofin.model.entities.Cards;
-import br.com.kofin.model.entities.Users;
 import br.com.kofin.model.enums.CardType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,68 +10,98 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/card")
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * Servlet /card
+ * GET  /card                – lista cartões do usuário
+ * GET  /card/view?id=12     – detalhes
+ * POST /card (action=…)     – create | update | delete
+ */
+@WebServlet("/card/*")
 public class CardsServlet extends HttpServlet {
 
+    /* ---------------------------- GET --------------------------------- */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
+
+        HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
         int userId = (Integer) session.getAttribute("userId");
 
-        try (UsersDao usersDao = new UsersDao()) {
-            Users user = usersDao.search(userId);
-            request.setAttribute("user", user);
-        } catch (Exception e) {
-            throw new ServletException("Erro ao buscar usuário", e);
-        }
+        /* rota /card/view */
+        if (req.getPathInfo() != null && req.getPathInfo().startsWith("/view"))
 
-        try {
-            CardsDao cardsDAO = new CardsDao();
-            List<Cards> cards = cardsDAO.getAllByUser(userId);
-            request.setAttribute("cards", cards);
-            request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp")
-                    .forward(request, response);
+        /* lista */
+        try (CardsDao dao = new CardsDao()) {
+            List<Cards> list = dao.listByUser(userId);
+            req.setAttribute("cards", list);
+            req.getRequestDispatcher("/WEB-INF/views/cards.jsp").forward(req, resp);
         } catch (SQLException e) {
-            throw new ServletException("Erro ao buscar cartões", e);
+            throw new ServletException("Erro ao listar cartões.", e);
         }
     }
 
+    /* ---------------------------- POST -------------------------------- */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
+
+        HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         int userId = (Integer) session.getAttribute("userId");
 
-        try {
-            CardsDao dao = new CardsDao();
-            String action = request.getParameter("action");
+        String action = req.getParameter("action");
+        if (action == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação não especificada.");
+            return;
+        }
 
-            if ("delete".equals(action)) {
-                Integer cardId = Integer.parseInt(request.getParameter("cardId"));
-                dao.delete(cardId);
+        try (CardsDao dao = new CardsDao()) {
 
-            } else {
-                Cards card = new Cards();
-                card.setType(CardType.CREDIT);
-                card.setNumber((int)(100000000 + Math.random() * 900000000));
-                card.setValidity(LocalDate.now().plusYears(5));
-                card.setFlag("VISA");
+            switch (action) {
 
-                dao.register(card, userId);
+                /* ---------------- criar ---------------- */
+                case "create" -> {
+                    Cards c = new Cards();
+                    c.setType(CardType.valueOf(req.getParameter("type").toUpperCase()));
+                    c.setNumber((int) (1000_0000L + Math.random() * 9000_0000L));
+                    c.setValidity(LocalDate.parse(req.getParameter("validity"))); // YYYY-MM-DD
+                    c.setFlag(req.getParameter("flag"));
+                    dao.register(c, userId);
+                }
+
+                /* ---------------- editar ---------------- */
+                case "update" -> {
+                    Cards c = dao.search(Integer.parseInt(req.getParameter("id")));
+                    c.setType(CardType.valueOf(req.getParameter("type").toUpperCase()));
+                    c.setValidity(LocalDate.parse(req.getParameter("validity")));
+                    c.setFlag(req.getParameter("flag"));
+                    dao.update(c);
+                }
+
+                /* ---------------- excluir --------------- */
+                case "delete" -> {
+                    dao.delete(Integer.parseInt(req.getParameter("id")));
+                }
+
+                default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
             }
 
-            response.sendRedirect(request.getContextPath() + "/card");
         } catch (Exception e) {
-            throw new ServletException("Erro ao processar cartão", e);
+            throw new ServletException("Erro ao processar cartão.", e);
         }
+
+        resp.sendRedirect(req.getContextPath() + "/dashboard");
     }
 }

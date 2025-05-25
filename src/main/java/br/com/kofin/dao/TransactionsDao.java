@@ -182,6 +182,48 @@ public class TransactionsDao implements AutoCloseable {
         }
     }
 
+    public double sumByUserAndType(int userId, TransactionType type) throws SQLException {
+        String sql = """
+            SELECT COALESCE(SUM(
+              CASE WHEN TIPO_TRANSACAO IN ('EXPENSE','INVESTMENT')
+                   THEN -VALOR ELSE VALOR END),0) AS TOTAL
+              FROM T_TRANSACOES
+             WHERE T_USUARIOS_ID_USUARIO = ? AND TIPO_TRANSACAO = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt   (1, userId);
+            ps.setString(2, type.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble("TOTAL") : 0.0;
+            }
+        }
+    }
+
+    /** Soma por tipo *e* intervalo de datas (inclusivo). */
+    public double sumByUserTypeAndDate(int userId,
+                                       TransactionType type,
+                                       LocalDate from,
+                                       LocalDate to) throws SQLException {
+        String sql = """
+            SELECT COALESCE(SUM(
+              CASE WHEN TIPO_TRANSACAO IN ('EXPENSE','INVESTMENT')
+                   THEN -VALOR ELSE VALOR END),0) AS TOTAL
+              FROM T_TRANSACOES
+             WHERE T_USUARIOS_ID_USUARIO = ?
+               AND TIPO_TRANSACAO = ?
+               AND TRUNC(DT_TRANSACAO) BETWEEN ? AND ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt   (1, userId);
+            ps.setString(2, type.name());
+            ps.setDate  (3, Date.valueOf(from));
+            ps.setDate  (4, Date.valueOf(to));
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble("TOTAL") : 0.0;
+            }
+        }
+    }
+
 
     /* ---------------------- helpers ------------------------------------------------------- */
 

@@ -20,25 +20,23 @@ import java.util.stream.Collectors;
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
 
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+        HttpSession s = req.getSession(false);
+        if (s == null || s.getAttribute("userId") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
-        int userId = (Integer) session.getAttribute("userId");
+        int userId = (Integer) s.getAttribute("userId");
 
         try (CardsDao cDao = new CardsDao();
              TransactionsDao tDao = new TransactionsDao()) {
 
-            /* ---------------- cartões ---------------- */
+            /* ---------- cartões ---------- */
             List<Cards> cards = cDao.listByUser(userId);
             req.setAttribute("cards", cards);
 
-            /* ---------------- transações agrupadas ---------------- */
+            /* ---------- transações agrupadas ---------- */
             Map<TransactionType, List<Transactions>> grouped =
                     tDao.listByUser(userId).stream()
                             .collect(Collectors.groupingBy(Transactions::getType));
@@ -47,23 +45,28 @@ public class DashboardServlet extends HttpServlet {
             req.setAttribute("txExpense",    grouped.getOrDefault(TransactionType.EXPENSE,    List.of()));
             req.setAttribute("txInvestment", grouped.getOrDefault(TransactionType.INVESTMENT, List.of()));
 
-            /* ---------------- totais ---------------- */
-            YearMonth now   = YearMonth.now();
-            LocalDate firstDay = now.atDay(1);
-            LocalDate lastDay  = now.atEndOfMonth();
+            /* ---------- resumo ---------- */
+            YearMonth ym  = YearMonth.now();
+            LocalDate d1 = ym.atDay(1);
+            LocalDate dN = ym.atEndOfMonth();
 
-            double totalMonth = tDao.sumByUserAndDateRange(userId, firstDay, lastDay);
+            double incomeMonth  = tDao.sumByUserTypeAndDate(userId, TransactionType.INCOME , d1, dN);
+            double expenseMonth = tDao.sumByUserTypeAndDate(userId, TransactionType.EXPENSE, d1, dN);
 
-            double totalAll   = tDao.sumByUser(userId);
+            double incomeTotal  = tDao.sumByUserAndType(userId, TransactionType.INCOME );
+            double expenseTotal = tDao.sumByUserAndType(userId, TransactionType.EXPENSE);
 
-            req.setAttribute("totalMonth", totalMonth);
-            req.setAttribute("totalAll"  , totalAll );
+            req.setAttribute("incomeMonth",  incomeMonth);
+            req.setAttribute("expenseMonth", expenseMonth);
+            req.setAttribute("incomeTotal",  incomeTotal);
+            req.setAttribute("expenseTotal", expenseTotal);
+            req.setAttribute("saldoMes",     incomeMonth  - expenseMonth);
+            req.setAttribute("saldoTotal",   incomeTotal  - expenseTotal);
 
         } catch (SQLException e) {
-            throw new ServletException("Erro ao carregar dashboard", e);
+            throw new ServletException("Falha ao carregar dashboard", e);
         }
 
-        req.getRequestDispatcher("/WEB-INF/views/dashboard.jsp")
-                .forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(req, resp);
     }
 }

@@ -1,55 +1,82 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java"
-         isELIgnored="false" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" isELIgnored="false" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
   <title>Kofin • Dashboard</title>
 
-  <!-- bootstrap 5 -->
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css"/>
+
   <style>
-    .h-scroll    { overflow-x: auto; white-space: nowrap; }
-    .card-block  { min-width: 220px; height: 120px; }
-    .card-plus   { width: 80px;  height:120px; }
-    .tx-block    { max-height: 420px; overflow-y: auto; }
+    /* ---------- cartões (carrossel) ---------- */
+    .h-scroll{overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;}
+    .h-scroll::-webkit-scrollbar{display:none;}
+    .card-block{min-width:220px;height:120px;}    /* ↓ um pouco menor */
+    .card-plus {width:90px;height:120px;}
+    .arrow-right{position:absolute;right:0;top:50%;transform:translateY(-50%);
+      padding:.3rem .45rem;background:#6c757d;border-radius:.25rem;cursor:pointer;}
+
+    /* ---------- transações ---------- */
+    .tx-block{max-height:420px;overflow-y:auto;}
+
+    /* ---------- linha Cartões + Resumo ---------- */
+    .cards-summary {display:flex;flex-wrap:wrap;gap:1rem;align-items:stretch;}   /* mesma altura */
+    .cards-col    {flex:3 1 40%;min-width:300px;display:flex;flex-direction:column;}
+    .summary-col  {flex:4 1 57%;min-width:300px;display:flex;flex-direction:column;}
+
+    .cards-wrapper   {flex:1;}               /* preenche toda a altura da coluna */
+    .summary-wrapper {flex:1;display:flex;flex-direction:column;}
+
+    /* blocos internos do resumo esticam igual */
+    .summary-grid      {flex:1;display:flex;gap:1rem;}
+    .summary-grid>div  {flex:1;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;}
+
+    /* sempre a mesma altura visual entre colunas */
+    @media (max-width: 991.98px){           /* Bootstrap lg-breakpoint */
+      .cards-summary{flex-direction:column;}/* empilha em telas pequenas */
+    }
   </style>
 </head>
 <body class="bg-dark text-light">
 
 <div class="container py-4">
 
-  <!-- título / logout -->
+  <!-- título & logout -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Dashboard</h2>
     <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/logout">Sair</a>
   </div>
 
-  <!-- ====== PARTE SUPERIOR ================================================= -->
-  <div class="row g-3">
+  <!-- ============ CARTÕES (3/7) + RESUMO (4/7) ============ -->
+  <div class="cards-summary mb-5">
 
-    <!-- cartões --------------------------------------------------------------------->
-    <div class="col-md-6">
-      <div class="bg-secondary rounded p-3 h-scroll d-flex gap-3">
+    <!-- ------------- Cartões ------------- -->
+    <div class="cards-col">
+      <h5 class="mb-2">💳 Cartões</h5>
 
-        <!-- lista de cartões -->
+      <div class="cards-wrapper bg-secondary rounded p-3 position-relative h-scroll d-flex gap-3">
+
+        <span class="arrow-right">➜</span>
+
         <c:forEach items="${cards}" var="c">
           <div class="bg-dark rounded card-block p-3 position-relative">
-            <small class="text-muted">${c.flag}</small>
-            <h5 class="mt-2">${c.type}</h5>
-            <span class="fw-semibold">${c.number}</span>
+            <h6 class="mb-1">${c.name}</h6>
+            <strong>**** ${c.last4}</strong>
+            <small class="d-block">${c.type}</small>
             <small class="d-block">Val: ${c.validity}</small>
+            <span class="position-absolute top-0 start-0 translate-middle p-1">${c.flag}</span>
 
             <!-- ações -->
             <div class="position-absolute top-0 end-0 m-1">
-              <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                      data-bs-target="#editCardModal" data-id="${c.id}">
-                ✎
-              </button>
+              <button class="btn btn-sm btn-outline-light"
+                      data-bs-toggle="modal" data-bs-target="#editCardModal"
+                      data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
+                      data-type="${c.type}" data-validity="${c.validity}" data-flag="${c.flag}">✎</button>
               <form class="d-inline" method="post" action="${pageContext.request.contextPath}/card">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="id" value="${c.id}">
+                <input type="hidden" name="action" value="delete"/>
+                <input type="hidden" name="id" value="${c.id}"/>
                 <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
               </form>
             </div>
@@ -58,41 +85,45 @@
 
         <!-- botão + -->
         <button class="btn btn-outline-light card-plus rounded d-flex justify-content-center align-items-center"
-                data-bs-toggle="modal" data-bs-target="#newCardModal">
-          +
-        </button>
-      </div>
-    </div>
+                data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
+      </div><!-- /cards-wrapper -->
+    </div><!-- /cards-col -->
 
-    <!-- total mês -->
-    <div class="col-md-2">
-      <div class="bg-secondary rounded text-center p-3 h-100">
-        <h6>Total do mês</h6>
-        <h4>R$ ${totalMonth}</h4>
-      </div>
-    </div>
+    <!-- ------------- Resumo ------------- -->
+    <div class="summary-col">
+      <div class="summary-wrapper">
+        <h5 class="mb-2">📊 Resumo</h5>
 
-    <!-- total geral -->
-    <div class="col-md-2">
-      <div class="bg-secondary rounded text-center p-3 h-100">
-        <h6>Total geral</h6>
-        <h4>R$ ${totalAll}</h4>
-      </div>
-    </div>
+        <div class="summary-grid">
 
-    <!-- saldo (exemplo) -->
-    <div class="col-md-2">
-      <div class="bg-secondary rounded text-center p-3 h-100">
-        <h6>Saldo</h6>
-        <h4>R$ ${totalAll - totalMonth}</h4>
-      </div>
-    </div>
-  </div><!-- /parte superior -->
+          <div class="bg-success bg-opacity-25 rounded p-3">
+            <h6 class="text-success-emphasis mb-1">Entradas (mês)</h6>
+            <h4 class="text-success">R$ ${incomeMonth}</h4>
+            <small>Total: R$ ${incomeTotal}</small>
+          </div>
 
-  <!-- ====== LISTA DE TRANSAÇÕES ============================================ -->
-  <div class="row mt-4 g-3">
+          <div class="bg-danger bg-opacity-25 rounded p-3">
+            <h6 class="text-danger-emphasis mb-1">Saídas (mês)</h6>
+            <h4 class="text-danger">R$ ${expenseMonth}</h4>
+            <small>Total: R$ ${expenseTotal}</small>
+          </div>
 
-    <!-- INCOME -->
+          <div class="bg-secondary bg-opacity-25 rounded p-3">
+            <h6 class="mb-1">Saldo</h6>
+            <h4>R$ ${saldoTotal}</h4>
+            <small>Mês: R$ ${saldoMes}</small>
+          </div>
+
+        </div><!-- /summary-grid -->
+      </div><!-- /summary-wrapper -->
+    </div><!-- /summary-col -->
+
+  </div><!-- /cards-summary -->
+
+  <!-- ================= LISTA DE TRANSAÇÕES ================= -->
+  <div class="row g-3">
+
+    <!-- ENTRADAS -->
     <div class="col-md-4">
       <h5 class="mb-2">Entradas
         <button class="btn btn-sm btn-outline-light float-end"
@@ -121,7 +152,7 @@
       </div>
     </div>
 
-    <!-- EXPENSE -->
+    <!-- SAÍDAS -->
     <div class="col-md-4">
       <h5 class="mb-2">Saídas
         <button class="btn btn-sm btn-outline-light float-end"
@@ -130,7 +161,6 @@
       </h5>
       <div class="bg-secondary rounded p-3 tx-block">
         <c:forEach items="${txExpense}" var="t">
-          <!-- mesmo template -->
           <div class="d-flex justify-content-between align-items-center border-bottom py-2">
             <div>
               <strong>R$ ${t.value}</strong>
@@ -151,7 +181,7 @@
       </div>
     </div>
 
-    <!-- INVESTMENT -->
+    <!-- INVESTIMENTOS -->
     <div class="col-md-4">
       <h5 class="mb-2">Investimentos
         <button class="btn btn-sm btn-outline-light float-end"
@@ -160,7 +190,6 @@
       </h5>
       <div class="bg-secondary rounded p-3 tx-block">
         <c:forEach items="${txInvestment}" var="t">
-          <!-- mesmo template -->
           <div class="d-flex justify-content-between align-items-center border-bottom py-2">
             <div>
               <strong>R$ ${t.value}</strong>
@@ -181,7 +210,7 @@
       </div>
     </div>
 
-  </div><!-- /lista transações -->
+  </div><!-- /row transações -->
 
 </div><!-- /container -->
 

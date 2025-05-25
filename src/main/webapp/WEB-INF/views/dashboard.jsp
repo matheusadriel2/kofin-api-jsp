@@ -98,8 +98,6 @@
       opacity:1 !important;     /* sobrepõe utility classes do Bootstrap   */
       pointer-events:auto;
     }
-    /* -------------------------------------------------------------------- */
-    /* 1.  estado NORMAL – ícones ocultos                                   */
     .tx-actions{
       opacity:0;                 /* invisível                              */
       pointer-events:none;       /* nada clicável                          */
@@ -108,11 +106,63 @@
       display:flex; gap:.25rem; z-index:5;             /* idem             */
     }
 
-    /* 2.  estado VISÍVEL – hover ou clique/tap                             */
     .tx-item:hover .tx-actions,
     .tx-item.show-actions .tx-actions{
       opacity:1 !important;      /* força aparecer (sobrepõe utilities)    */
       pointer-events:auto;       /* agora pode clicar                      */
+    }
+    /* cursor de “link” quando passar sobre uma transação */
+    .tx-item{cursor:pointer;}
+    /* wrapper posicionado */
+    .tx-col {
+      position: relative;
+    }
+
+    /* scrollable */
+    /* Faz .tx-col ser flex coluna e preencher a altura da col-md-4 */
+    .tx-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Faz tx-block crescer para preencher todo o wrapper */
+    .tx-block {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;         /* Firefox */
+      -ms-overflow-style: none;      /* IE11 */
+    }
+    .tx-block::-webkit-scrollbar {
+      display: none;                 /* Chrome/Safari */
+    }
+
+    /* Indicador fixo na base */
+    .tx-scroll-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 8px;
+      background: rgba(108,117,125,0.8);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s;
+      clip-path: polygon(
+              0 0,
+              100% 0,
+              100% 100%,
+              60% 100%,
+              50% 150%,
+              40% 100%,
+              0 100%
+      );
+      z-index: 10;
+    }
+
+    /* Só aparece enquanto scroll no meio da lista */
+    .tx-col.show-scroll-hint .tx-scroll-indicator {
+      opacity: .85;
     }
 
 
@@ -320,7 +370,7 @@
 
     <!-- colunas -------------------------------------------------------------- -->
     <div class="bg-secondary rounded p-3">
-      <div class="row g-3">
+      <div class="row g-3 align-items-stretch">
 
         <!-- Entradas -->
         <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
@@ -342,7 +392,6 @@
           <jsp:param name="listName" value="txInvestment"/>
           <jsp:param name="type"     value="INVESTMENT"/>
         </jsp:include>
-
 
       </div>
     </div><!-- /bg-secondary -->
@@ -859,6 +908,43 @@
       if(!confirm('Excluir esta transação?')) e.preventDefault();
     });
   });
+
+  /* 1 listener para cada .tx-item ---------- */
+  document.querySelectorAll('.tx-item').forEach(item=>{
+    item.addEventListener('click',e=>{
+      /* se clicou dentro dos botões, não faz toggle */
+      if(e.target.closest('.tx-actions')) return;
+      item.classList.toggle('show-actions');   // mostra/oculta ícones
+    });
+  });
+
+  document.querySelectorAll('.tx-block').forEach(block => {
+    const wrapper = block.closest('.tx-col');
+    let hintTimer;
+
+    function showHint() {
+      wrapper.classList.add('show-scroll-hint');
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => wrapper.classList.remove('show-scroll-hint'), 700);
+    }
+
+    block.addEventListener('scroll', () => {
+      // se já está no topo OU no fim, nada
+      if (block.scrollTop === 0 ||
+              block.scrollTop + block.clientHeight >= block.scrollHeight) {
+        wrapper.classList.remove('show-scroll-hint');
+      } else {
+        showHint();
+      }
+    });
+
+    // opcional: ao resize recalcula (não obrigatório aqui)
+    window.addEventListener('resize', () => {
+      // poderia ajustar dimensões se quisesse
+    });
+  });
+
+
 </script>
 
 

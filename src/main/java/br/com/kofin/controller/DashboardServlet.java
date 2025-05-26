@@ -31,7 +31,7 @@ public class DashboardServlet extends HttpServlet {
         }
         int userId = (Integer) s.getAttribute("userId");
 
-        /* --------- parâmetro de filtro (cartão) ------------- */
+        // Filtro de cartões
         Integer cardFilter = null;
         String cardParam = req.getParameter("card");
         if (cardParam != null && !cardParam.isBlank())
@@ -40,21 +40,21 @@ public class DashboardServlet extends HttpServlet {
         try (CardsDao cDao = new CardsDao();
              TransactionsDao tDao = new TransactionsDao()) {
 
-            /* ----- cartões para carrossel / filtro -------- */
+            // Lista de cartões do usuário
             List<Cards> cards = cDao.listByUser(userId);
             req.setAttribute("cards", cards);
             req.setAttribute("selectedCard", cardFilter);
 
-            /* ----- transações filtradas (ou todas) -------- */
+            // Lista de transações do usuário filtradas por cartão
             List<Transactions> all =
                     tDao.listByUserAndCard(userId, cardFilter);
 
-            /* ----- parâmetros extras de filtro ---------------------------- */
-            String q       = req.getParameter("q");    // nome contém
-            String cat     = req.getParameter("cat");  // categoria contém
-            String pm      = req.getParameter("pm");   // método exato
-            String vminStr = req.getParameter("vmin");// >=
-            String vmaxStr = req.getParameter("vmax");// <=
+            // Filtros de transações
+            String q       = req.getParameter("q");
+            String cat     = req.getParameter("cat");
+            String pm      = req.getParameter("pm");
+            String vminStr = req.getParameter("vmin");
+            String vmaxStr = req.getParameter("vmax");
 
             Double vmin = (vminStr!=null && !vminStr.isBlank())
                     ? Double.parseDouble(vminStr)
@@ -63,7 +63,7 @@ public class DashboardServlet extends HttpServlet {
                     ? Double.parseDouble(vmaxStr)
                     : null;
 
-            /* ------- aplica filtros em memória ---------- */
+            // Aplicando filtros
             all = all.stream()
                     .filter(t -> q   == null || q.isBlank()
                             || t.getName().toLowerCase()
@@ -90,7 +90,7 @@ public class DashboardServlet extends HttpServlet {
             req.setAttribute("txInvestment",
                     grouped.getOrDefault(TransactionType.INVESTMENT, List.of()));
 
-            /* ----- valores para o Resumo ------------------ */
+            // Resumo do mês e total
             YearMonth ym = YearMonth.now();
             double incomeMonth  = sum(all, TransactionType.INCOME,  ym);
             double expenseMonth = sum(all, TransactionType.EXPENSE, ym);
@@ -103,8 +103,6 @@ public class DashboardServlet extends HttpServlet {
             req.setAttribute("expenseTotal", expenseTotal);
             req.setAttribute("saldoMes",     incomeMonth  - expenseMonth);
             req.setAttribute("saldoTotal",   incomeTotal  - expenseTotal);
-
-            /* --- NOVO: métodos de pagamento para popular o <select> ---- */
             req.setAttribute("paymentMethods", PaymentMethod.values());
 
         } catch (SQLException e) {

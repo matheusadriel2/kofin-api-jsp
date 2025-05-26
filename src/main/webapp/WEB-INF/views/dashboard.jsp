@@ -152,10 +152,11 @@
               ${fn:substring(c.validity,5,7)}/${fn:substring(c.validity,2,4)}
             </span>
 
-                <!-- imagem só se houver bandeira -->
                 <c:if test="${not empty c.flag}">
-                  <img src="${pageContext.request.contextPath}/img/flags/${c.flag.img}"
-                       alt="${c.flag}" width="26" height="18"/>
+                  <span
+                    class="card-flag ${fn:toLowerCase(c.flag.name())}"
+                    title="${c.flag}">
+                  </span>
                 </c:if>
               </small>
 
@@ -168,7 +169,7 @@
                         data-flag="${c.flag}">✎</button>
 
                 <form class="d-inline" method="post"
-                      action="${pageContext.request.contextPath}/card"
+                      action="${pageContext.request.contextPath}/cards"
                       onclick="event.stopPropagation()">
                   <input type="hidden" name="action" value="delete"/>
                   <input type="hidden" name="id"     value="${c.id}"/>
@@ -337,11 +338,11 @@
 </div>
 
 
-<!-- ================== MODAIS (formulários) =============================== -->
+<!-- MODAIS -->
 <!-- Modal: criação de cartão  -->
 <div class="modal fade" id="newCardModal" tabindex="-1">
   <div class="modal-dialog">
-    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
+    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/cards">
       <input type="hidden" name="action" value="create"/>
 
       <div class="modal-header bg-light text-dark">
@@ -403,7 +404,7 @@
 <!-- Modal: editar cartão -->
 <div class="modal fade" id="editCardModal" tabindex="-1">
   <div class="modal-dialog">
-    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
+    <form class="modal-content" method="post" action="${pageContext.request.contextPath}/cards">
       <input type="hidden" name="action" value="update"/>
       <input type="hidden" name="id" id="editCardId"/>
 
@@ -413,20 +414,17 @@
       </div>
 
       <div class="modal-body">
-        <!-- nome -->
         <div class="mb-3">
           <label class="form-label">Nome do cartão</label>
           <input type="text" name="name" id="editCardName" class="form-control" required/>
         </div>
 
-        <!-- last4 -->
         <div class="mb-3">
           <label class="form-label">Últimos 4 dígitos</label>
           <input type="text" name="last4" id="editCardLast4" class="form-control"
                  maxlength="4" pattern="\d{4}" title="Insira exatamente 4 números"/>
         </div>
 
-        <!-- tipo -->
         <div class="mb-3">
           <label class="form-label">Tipo</label>
           <select name="type" id="editCardType" class="form-select">
@@ -435,13 +433,11 @@
           </select>
         </div>
 
-        <!-- validade -->
         <div class="mb-3">
           <label class="form-label">Validade</label>
           <input type="month" name="validity" id="editCardValidity" class="form-control" required/>
         </div>
 
-        <!-- bandeira -->
         <div class="mb-3">
           <label class="form-label">Bandeira</label>
           <select name="flag" id="editCardFlag" class="form-select">
@@ -461,7 +457,7 @@
   </div>
 </div>
 
-<!-- ========== MODAL: NOVA TRANSAÇÃO ========== -->
+<!-- MODAL: NOVA TRANSAÇÃO -->
 <div class="modal fade" id="newTxModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -475,7 +471,6 @@
 
       <div class="modal-body">
 
-        <!-- tipo (somente leitura) -->
         <div class="mb-3">
           <label class="form-label">Tipo</label>
           <input type="text" class="form-control" id="newTxTypeLabel" disabled/>
@@ -547,7 +542,7 @@
 </div>
 
 
-<!-- ========== MODAL: EDITAR TRANSAÇÃO ========== -->
+<!-- MODAL: EDITAR TRANSAÇÃO -->
 <div class="modal fade" id="editTxModal" tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -562,7 +557,6 @@
 
       <div class="modal-body">
 
-        <!-- tipo (somente leitura) -->
         <div class="mb-3">
           <label class="form-label">Tipo</label>
           <input type="text" id="editTxTypeLabel" class="form-control" disabled/>
@@ -634,7 +628,7 @@
   </div>
 </div>
 
-  <!-- ========== MODAL: VISUALIZAR TRANSAÇÃO ========== -->
+  <!-- MODAL: VISUALIZAR TRANSAÇÃO -->
   <div class="modal fade" id="viewTxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-sm">

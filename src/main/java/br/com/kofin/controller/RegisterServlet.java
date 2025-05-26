@@ -4,8 +4,8 @@ import br.com.kofin.auth.PasswordUtil;
 import br.com.kofin.dao.UsersDao;
 import br.com.kofin.dao.UserPasswordDao;
 import br.com.kofin.exception.EntityNotFoundException;
-import br.com.kofin.model.entities.Users;
 import br.com.kofin.model.entities.UserPassword;
+import br.com.kofin.model.entities.Users;
 import br.com.kofin.model.enums.Verified;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +17,14 @@ import java.time.LocalDateTime;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.getRequestDispatcher("/WEB-INF/views/register.jsp")
+                .forward(req, resp);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -41,7 +49,6 @@ public class RegisterServlet extends HttpServlet {
             Users newUser = usersDao.searchByEmail(email);
 
             String hashed = PasswordUtil.hashPassword(password);
-
             UserPassword up = new UserPassword();
             up.setUser(newUser);
             up.setPassword(hashed);

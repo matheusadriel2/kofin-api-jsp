@@ -153,7 +153,13 @@
     z-index: 10;
 }
 
-/* Só aparece enquanto scroll no meio da lista */
+#viewTxModal .edit-btn {
+    cursor: pointer;
+    color: #6c757d;
+}
+#viewTxModal .editing + .edit-btn {
+    color: #0d6efd;
+}
 .tx-col.show-scroll-hint .tx-scroll-indicator {
     opacity: .85;
 }

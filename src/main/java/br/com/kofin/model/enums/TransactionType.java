@@ -1,6 +1,5 @@
 package br.com.kofin.model.enums;
 
-/** R = Receita, D = Despesa, I = Investimento */
 public enum TransactionType {
     INCOME     ('R'),
     EXPENSE    ('D'),

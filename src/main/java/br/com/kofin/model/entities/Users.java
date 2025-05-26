@@ -52,7 +52,6 @@ public class Users {
         this.updateDate = updateDate;
     }
 
-    // Getters e Setters
     public Integer getId() {
         return id;
     }

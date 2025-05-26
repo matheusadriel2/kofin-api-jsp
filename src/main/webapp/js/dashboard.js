@@ -254,3 +254,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     offcanvas.appendChild(ul);
 });
+
+// Modal de visualização de transação
+const viewModal = document.getElementById('viewTxModal');
+viewModal.addEventListener('show.bs.modal', ev => {
+    const data = ev.relatedTarget.closest('.tx-item').dataset;
+    document.getElementById('tx-name').textContent = data.name || '-';
+    document.getElementById('tx-cat').textContent  = data.cat  || '-';
+    document.getElementById('tx-type').textContent = data.type;
+    document.getElementById('tx-val').textContent  = 'R$ ' + Number(data.val).toFixed(2);
+    document.getElementById('tx-pm').textContent   = data.pm;
+    document.getElementById('tx-date').textContent = data.date.replace('T',' ').slice(0,16);
+});

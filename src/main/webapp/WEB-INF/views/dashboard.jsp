@@ -636,35 +636,59 @@
   </div>
 </div>
 
-<!-- ========== MODAL: RECIBO ========== -->
-<div class="modal fade" id="viewTxModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
+  <!-- ========== MODAL: VISUALIZAR TRANSAÇÃO ========== -->
+  <div class="modal fade" id="viewTxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-sm">
 
-      <div class="modal-header bg-light text-dark">
-        <h5 class="modal-title">Recibo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
+        <div class="modal-header bg-light text-dark">
+          <h5 class="modal-title">Detalhes da Transação</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
 
-      <div class="modal-body">
-        <table class="table table-sm text-dark mb-0">
-          <tbody>
-          <tr><th>Nome</th>      <td id="rc-name"></td></tr>
-          <tr><th>Categoria</th> <td id="rc-cat"></td></tr>
-          <tr><th>Tipo</th>      <td id="rc-type"></td></tr>
-          <tr><th>Valor</th>     <td id="rc-val"></td></tr>
-          <tr><th>Método</th>    <td id="rc-pm"></td></tr>
-          <tr><th>Data</th>      <td id="rc-date"></td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="modal-body">
+          <table class="table table-striped mb-0">
+            <tbody>
+            <tr>
+              <th scope="row" class="w-25">Nome</th>
+              <td id="tx-name"></td>
+            </tr>
+            <tr>
+              <th scope="row">Categoria</th>
+              <td id="tx-cat"></td>
+            </tr>
+            <tr>
+              <th scope="row">Tipo</th>
+              <td id="tx-type"></td>
+            </tr>
+            <tr>
+              <th scope="row">Valor</th>
+              <td id="tx-val"></td>
+            </tr>
+            <tr>
+              <th scope="row">Método de Pagamento</th>
+              <td id="tx-pm"></td>
+            </tr>
+            <tr>
+              <th scope="row">Data</th>
+              <td id="tx-date"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            Fechar
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
-</div>
+
 
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
   <script src="${pageContext.request.contextPath}/js/dashboard.js"></script>

@@ -32,7 +32,7 @@
 .h-scroll::-webkit-scrollbar{display:none;}
 
 .card-item   {
-    min-width:200px; height:105px; margin-right:1rem;
+    min-width:200px; height:140px; margin-right:1rem;
     background: #61a2cf; border-radius:.5rem; padding:.75rem;
     position:relative;
 }
@@ -67,7 +67,7 @@
 /* nova barra-dica HORIZONTAL */
 .scroll-hint {
     position: absolute;
-    bottom: 8px;              /* fixa junto à base do container */
+    bottom: -10%;           /* fixa junto à base do container */
     left: 50%;                /* centraliza horizontalmente */
     transform: translateX(-50%);
     width: 42px;              /* comprimento maior, alinhado ao scroll */

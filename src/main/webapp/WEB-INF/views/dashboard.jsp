@@ -112,11 +112,11 @@
   <div class="row gy-4 mb-5 gap-3">
 
     <!-- =============== BLOCO: CARTÕES ================= -->
-    <div class="col-12 col-xl-5 d-flex flex-column gap-2 border border-dark rounded-2 p-4">
-      <div class="d-flex flex-row justify-content-between">
+    <div class="col-12 col-xl-5 d-flex flex-column border border-dark rounded-2 p-4">
+      <div class="d-flex flex-row justify-content-between mb-4">
         <div>
           <h5 class="mb-2">Cartões</h5>
-          <h6 class="mb-1">Gerencie seus cartões</h6>
+          <h6 class="mb-0">Gerencie seus cartões</h6>
         </div>
 
         <!-- botão + para novo cartão -->
@@ -189,38 +189,36 @@
 
     <!-- Resumo ------------------------------------------------------ -->
 
-    <div class="col-12 col-xl-7 d-flex flex-column border border-dark rounded-2 p-4">
+    <div class="d-flex flex-column align-items-start border border-dark rounded-2 p-4 w-auto">
       <h5 class="mb-2">Resumo</h5>
-      <h6 class="mb-3">Confira suas entradas e despesas semanais...</h6>
+      <h6 class="mb-4">Confira suas entradas e despesas semanais</h6>
 
-      <!-- row-cols-* controla colunas; 1 nos xs, 3 a partir de sm -->
-      <div class="row row-cols-1 row-cols-md-3 g-3 w-auto">
-        <div class="col-md-auto d-flex">
-          <div class="bg-success bg-opacity-25 rounded p-3 text-center d-flex flex-column justify-content-center">
-            <h6 class="text-success-emphasis">Entradas (mês)</h6>
-            <h4 class="text-success">R$ ${incomeMonth}</h4>
-            <small>Total: R$ ${incomeTotal}</small>
-          </div>
+      <!-- container flex: coluna no XS, linha no MD+, gap entre cards, centralizado -->
+      <div class="d-flex flex-column flex-md-row justify-content-center gap-3 w-auto">
+
+        <!-- Card 1 -->
+        <div style="min-width: 200px; height: 140px" class="d-flex flex-column align-items-center bg-success bg-opacity-25 rounded p-3">
+          <h6 class="text-success-emphasis">Entradas (mês)</h6>
+          <h4 class="text-success">R$ ${incomeMonth}</h4>
+          <small>Total: R$ ${incomeTotal}</small>
         </div>
 
-        <div class="col-md-auto d-flex">
-          <div class="bg-danger bg-opacity-25 rounded p-3 text-center d-flex flex-column justify-content-center">
-            <h6 class="text-danger-emphasis">Saídas (mês)</h6>
-            <h4 class="text-danger">R$ ${expenseMonth}</h4>
-            <small>Total: R$ ${expenseTotal}</small>
-          </div>
+        <!-- Card 2 -->
+        <div class="d-flex flex-column align-items-center bg-danger bg-opacity-25 rounded p-3">
+          <h6 class="text-danger-emphasis">Saídas (mês)</h6>
+          <h4 class="text-danger">R$ ${expenseMonth}</h4>
+          <small>Total: R$ ${expenseTotal}</small>
         </div>
 
-        <div class="col-md-auto d-flex">
-          <div class="bg-secondary bg-opacity-25 rounded p-3 text-center d-flex flex-column justify-content-center">
-            <h6>Saldo</h6>
-            <h4>R$ ${saldoTotal}</h4>
-            <small>Mês: R$ ${saldoMes}</small>
-          </div>
+        <!-- Card 3 -->
+        <div class="d-flex flex-column align-items-center bg-secondary bg-opacity-25 rounded p-3">
+          <h6>Saldo</h6>
+          <h4>R$ ${saldoTotal}</h4>
+          <small>Mês: R$ ${saldoMes}</small>
         </div>
 
-      </div><!-- /row resumo -->
-    </div><!-- /resumo -->
+      </div>
+    </div>
 
   </div><!-- /row Cartões + Resumo -->
 

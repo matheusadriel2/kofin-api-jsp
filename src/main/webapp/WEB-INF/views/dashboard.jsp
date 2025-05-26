@@ -6,351 +6,26 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kofin • Dashboard</title>
+  <title>kofin · Dashboard</title>
 
   <link rel="stylesheet"
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
   <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/css/dashboard.css"/>
+  <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <style>
-    .tx-block{
-      max-height:420px;
-      overflow-y:auto;
 
-      /* esconde o desenho da barra sem impedir o scroll  */
-      scrollbar-width:none;          /* Firefox */
-      -ms-overflow-style:none;       /* IE/Edge antigo */
-    }
-    .tx-block::-webkit-scrollbar{    /* Chrome/Safari/Edge */
-      display:none;
-    }
-    .tx-item:hover .tx-actions,
-    .tx-item.show-actions .tx-actions{opacity:1}
-    .tx-block{
-      max-height:calc(100vh - 420px); /* ocupa resto da página com folga */
-      min-height:260px;
-      overflow-y:auto;
-    }
-    .tx-block:empty::before{
-      content:"Sem transações ainda";
-      display:block;text-align:center;
-      margin-top:3rem;color:#adb5bd;
-    }
-
-    .cards-wrap  {position:relative;padding:1rem;background:#6c757d;border-radius:.5rem;}
-    .h-scroll {
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-right: calc(1rem + 50px); /* espaço pro + */
-    }
-    .h-scroll::-webkit-scrollbar{display:none;}
-
-    .card-item   {
-      min-width:200px; height:105px; margin-right:1rem;
-      background:#212529; border-radius:.5rem; padding:.75rem;
-      position:relative;
-    }
-    .last4       { font-size:.70rem; }
-
-    .card-actions {
-      position:absolute; top:4px; right:4px;
-      opacity:0; pointer-events:none; transition:opacity .15s;
-    }
-    .card-item:hover .card-actions,
-    .card-item.show-actions .card-actions{
-      opacity:1; pointer-events:auto;
-    }
-
-    .add-card-btn {
-      position:absolute;
-      right:1rem;
-      top:50%; transform:translateY(-50%);
-      width:50px; height:105px; border-radius:.5rem;
-      background:#0d6efd; color:#fff; font-size:2rem;
-      display:flex; align-items:center; justify-content:center;
-      cursor: pointer;            /* mostra mãozinha */
-      pointer-events: auto;       /* garante que seja clicável */
-      z-index: 2;                 /* fica sempre por cima */
-    }
-
-    /* resumo */
-    .summary-wrap {
-      background:#6c757d; border-radius:.5rem; padding:1rem;
-      display:flex; flex:1; flex-direction:column;
-    }
-    .summary-wrap .summary-grid { flex:1; display:flex; gap:1rem; }
-    .summary-wrap .summary-grid > div {
-      flex:1; display:flex; align-items:center; justify-content:center;
-      background:#212529; border-radius:.5rem; padding:.75rem; text-align:center;
-    }
-
-    /* ============ BARRA de SCROLL (hint) ============ */
-    .scroll-hint{position:absolute;right:calc(55px + 1rem); /* ao lado do + */
-      top:50%;transform:translateY(-50%);
-      width:6px;height:42px;border-radius:3px;
-      background:#6c757d;opacity:0;transition:opacity .2s;pointer-events:none;}
-    .show-hint  {opacity:.9;}
-
-    /* ============ LISTA de TRANSAÇÕES ============ */
-    .tx-block{max-height:420px;overflow-y:auto;}
-
-    /* mostra os botões no hover ou após clique/tap */
-    .tx-item:hover .tx-actions,
-    .tx-item.show-actions .tx-actions{
-      opacity:1 !important;     /* sobrepõe utility classes do Bootstrap   */
-      pointer-events:auto;
-    }
-    .tx-actions{
-      opacity:0;                 /* invisível                              */
-      pointer-events:none;       /* nada clicável                          */
-      transition:opacity .15s;   /* animação suave                         */
-      position:absolute; top:4px; right:4px;          /* onde já estavam   */
-      display:flex; gap:.25rem; z-index:5;             /* idem             */
-    }
-
-    .tx-item:hover .tx-actions,
-    .tx-item.show-actions .tx-actions{
-      opacity:1 !important;      /* força aparecer (sobrepõe utilities)    */
-      pointer-events:auto;       /* agora pode clicar                      */
-    }
-    /* cursor de “link” quando passar sobre uma transação */
-    .tx-item{cursor:pointer;}
-    /* wrapper posicionado */
-    .tx-col {
-      position: relative;
-    }
-
-    /* scrollable */
-    /* Faz .tx-col ser flex coluna e preencher a altura da col-md-4 */
-    .tx-col {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Faz tx-block crescer para preencher todo o wrapper */
-    .tx-block {
-      flex: 1;
-      overflow-y: auto;
-      scrollbar-width: none;         /* Firefox */
-      -ms-overflow-style: none;      /* IE11 */
-    }
-    .tx-block::-webkit-scrollbar {
-      display: none;                 /* Chrome/Safari */
-    }
-
-    /* Indicador fixo na base */
-    .tx-scroll-indicator {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 8px;
-      background: rgba(108,117,125,0.8);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .2s;
-      clip-path: polygon(
-              0 0,
-              100% 0,
-              100% 100%,
-              60% 100%,
-              50% 150%,
-              40% 100%,
-              0 100%
-      );
-      z-index: 10;
-    }
-
-    /* Só aparece enquanto scroll no meio da lista */
-    .tx-col.show-scroll-hint .tx-scroll-indicator {
-      opacity: .85;
-    }
-
-    /* =============  SIDEBAR DESKTOP  ============= */
-    .sidebar{
-      position:fixed;
-      top:0; left:0;
-      height:100vh;
-      width:64px;                         /* colapsada */
-      background:#212529;
-      transition:width .2s;
-      z-index:1040;                       /* acima do conteúdo */
-    }
-    .sidebar:hover,
-    .sidebar:focus-within{                 /* expande ao hover/foco */
-      width:220px;
-    }
-    .sidebar .brand{
-      font-size:1.1rem;
-    }
-    .sidebar .nav-link{
-      color:#adb5bd;
-      padding:.75rem .5rem;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .sidebar .nav-link:hover,
-    .sidebar .nav-link.active{
-      background:#0d6efd;
-      color:#fff;
-    }
-    .sidebar i{ font-size:1.25rem; }
-    .sidebar .link-text{                   /* aparece só quando expandido */
-      display:none;
-    }
-    .sidebar:hover .link-text,
-    .sidebar:focus-within .link-text{
-      display:inline;
-    }
-
-    /* --- NAV-LINK agora fica centralizado no modo compacto
-       e ganha padding à esquerda quando a barra expande --- */
-    .sidebar .nav-link{
-      display:flex;
-      align-items:center;
-      gap:.75rem;            /* espaço entre ícone e texto          */
-      justify-content:center;
-      padding:.75rem 0;      /* ↑↓ / ←→ (0 ←→ encosta menos)        */
-    }
-
-    .sidebar:hover   .nav-link,
-    .sidebar:focus-within .nav-link{
-      justify-content:flex-start; /* desloca itens p/ a direita      */
-      padding-left:1rem;          /* margem interna confortável      */
-    }
-
-    /* marca‐texto (“link-text”) herda o gap acima, não precisa margin */
-
-
-    /* ---------- TOP NAVBAR fixo ---------- */
-    .navbar-app{
-      position:fixed; top:0; left:0; right:0;
-      z-index:1030;                 /* acima da sidebar   */
-    }
-
-    /* dá espaço p/ o conteúdo, pois a navbar tem 56 px */
-    main{ margin-top:56px; }
-
-    /* ---------- SIDEBAR ---------- */
-    /*   < 1600 px  → colapsada (64 px) e expande no :hover
-         ≥ 1600 px → já nasce expandida (220 px)              */
-    @media (min-width:992px){          /* desktop em geral   */
-      .sidebar{ width:64px; }
-      main{ margin-left:64px; }      /* não fica coberto   */
-      .sidebar:hover,
-      .sidebar:focus-within{
-        width:220px;
-      }
-    }
-    @media (min-width:1600px){         /* telas muito largas */
-      .sidebar{ width:220px; }       /* sempre expandida   */
-      main{ margin-left:220px; }
-      /* texto e alinhamento SEM precisar de :hover       */
-      .sidebar .link-text{ display:inline; }
-      .sidebar .nav-link{
-        justify-content:flex-start;
-        padding-left:1rem;
-      }
-    }
-
-    /* ───────────── ESCONDE NAVBAR NO DESKTOP (>992px) ───────────── */
-    @media (min-width: 992px) {
-      .navbar-app .navbar-brand{
-        display: none !important;
-      }
-      /* já que a navbar some, tira o margin-top do main */
-      main {
-        margin-top: 0 !important;
-      }
-    }
-
-    /* ──────────── ESCONDE SIDEBAR NO MOBILE (<992px) ──────────── */
-    @media (max-width: 991.98px) {
-      .sidebar {
-        display: none !important;
-      }
-      main {
-        margin-left: 0 !important;
-      }
-    }
-
-
-    /* ────────────── HAMBURGUER ────────────── */
-    /* só aparece quando a sidebar está oculta (mobile) */
-    @media (min-width: 992px) {
-      .btn-hamb {
-        display: none !important;
-      }
-    }
-    @media (max-width: 991.98px) {
-      .btn-hamb {
-        display: inline-flex !important;
-      }
-    }
-
-    /* aplica um padding interno extra em todas as larguras */
-    main {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-
-    /* quando a sidebar está colapsada (64px), soma mais 0.5rem */
-    @media (min-width: 992px) and (max-width: 1599.98px) {
-      main {
-        margin-left: calc(64px + 0.5rem);
-      }
-    }
-
-    /* quando a sidebar está expandida (220px), soma mais 0.5rem */
-    @media (min-width: 1600px) {
-      main {
-        margin-left: calc(220px + 0.5rem);
-      }
-    }
-
-
-    /* remove bullet padrão do UL colado no offcanvas */
-    .offcanvas-body ul{ list-style:none; padding:0; margin:0; }
-
-    #offcanvasNav.offcanvas-start{
-      width:220px;          /* mesmo width da sidebar aberta        */
-    }
-
-  </style>
 </head>
-<body class="bg-dark text-light d-flex">
-<!-- ───────────── TOP NAVBAR ───────────── -->
-<nav class="navbar navbar-dark bg-dark navbar-app">
-  <div class="container-fluid justify-content-between">
-
-    <!-- brand  -->
-    <a href="${pageContext.request.contextPath}/dashboard"
-       class="navbar-brand d-flex align-items-center">
-      <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
-           alt="Kofin" width="32" height="32" class="me-2">
-    </a>
-
-    <!-- à direita -->
-    <button class="btn btn-outline-light btn-sm btn-hamb"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasNav"
-            aria-label="Menu">
-      <i class="bi bi-list fs-5"></i>
-    </button>
-  </div>
-</nav>
+<body class="bg-light text-dark d-flex">
 
 <!-- ────────────────  SIDEBAR  ──────────────── -->
 <nav id="sidebar" class="sidebar flex-column flex-shrink-0">
   <!-- Logo / brand -->
   <a href="${pageContext.request.contextPath}/dashboard"
-     class="brand text-decoration-none text-light d-flex align-items-center justify-content-center py-3">
+     class="brand text-decoration-none text-dark d-flex align-items-center justify-content-center py-3">
     <!-- ícone ou imagem pequena   -->
-    <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
-         alt="Kofin" width="32" height="32" class="me-0 me-lg-2">
+    <img src="${pageContext.request.contextPath}/assets/logo-black.svg"
+         alt="Kofin" width="75%" height="75%" class="me-0 me-lg-2 p-4">
   </a>
 
   <!-- Navegação -->
@@ -388,7 +63,7 @@
 
   <!-- logout na base -->
   <a href="${pageContext.request.contextPath}/logout"
-     class="nav-link text-light logout-link mb-3 mt-lg-auto">
+     class="nav-link text-dark logout-link mb-3 mt-lg-auto">
     <i class="bi bi-box-arrow-right me-lg-2"></i>
     <span class="link-text">Sair</span>
   </a>
@@ -396,10 +71,10 @@
 </nav>
 
 <!-- Off-canvas para tablet/móvel -->
-<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasNav">
+<div class="offcanvas offcanvas-start text-dark" tabindex="-1" id="offcanvasNav">
   <div class="offcanvas-header">
     <a href="${pageContext.request.contextPath}/dashboard"
-       class="brand text-decoration-none text-light d-flex align-items-center justify-content-center py-3">
+       class="brand text-decoration-none text-dark d-flex align-items-center justify-content-center py-3">
       <!-- ícone ou imagem pequena   -->
       <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
            alt="Kofin" width="40" height="40" class="me-0 me-lg-2">
@@ -429,7 +104,7 @@
       <h5 class="mb-2">Cartões</h5>
       <h6 class="mb-3">Gerencia todos os seus cartoes aqui...</h6>
 
-      <div class="bg-secondary rounded p-3 cards-wrap">
+      <div class="bg-light rounded p-3 cards-wrap">
 
         <!-- carrossel ------------------------------------------------- -->
         <div class="h-scroll d-flex">
@@ -613,7 +288,7 @@
     </div>
 
     <!-- colunas -------------------------------------------------------------- -->
-    <div class="bg-secondary rounded p-3">
+    <div class="bg-light rounded p-3">
       <div class="row row-cols-1 row-cols-md-3 g-3 align-items-stretch">
 
         <!-- Entradas -->
@@ -652,7 +327,7 @@
     <form class="modal-content" method="post" action="${pageContext.request.contextPath}/card">
       <input type="hidden" name="action" value="create"/>
 
-      <div class="modal-header bg-secondary text-light">
+      <div class="modal-header bg-light text-dark">
         <h5 class="modal-title">Adicionar cartão</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -715,7 +390,7 @@
       <input type="hidden" name="action" value="update"/>
       <input type="hidden" name="id" id="editCardId"/>
 
-      <div class="modal-header bg-secondary text-light">
+      <div class="modal-header bg-light text-dark">
         <h5 class="modal-title">Editar cartão</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -776,7 +451,7 @@
       <input type="hidden" name="action" value="create"/>
       <input type="hidden" name="type"   id="newTxType"/>
 
-      <div class="modal-header bg-secondary text-light">
+      <div class="modal-header bg-light text-dark">
         <h5 class="modal-title">Nova transação</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -863,7 +538,7 @@
       <input type="hidden" name="id"     id="editTxId"/>
       <input type="hidden" name="type"   id="editTxType"/>
 
-      <div class="modal-header bg-secondary text-light">
+      <div class="modal-header bg-light text-dark">
         <h5 class="modal-title">Editar transação</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -947,13 +622,13 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
 
-      <div class="modal-header bg-secondary text-light">
+      <div class="modal-header bg-light text-dark">
         <h5 class="modal-title">Recibo</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
-        <table class="table table-sm text-light mb-0">
+        <table class="table table-sm text-dark mb-0">
           <tbody>
           <tr><th>Nome</th>      <td id="rc-name"></td></tr>
           <tr><th>Categoria</th> <td id="rc-cat"></td></tr>

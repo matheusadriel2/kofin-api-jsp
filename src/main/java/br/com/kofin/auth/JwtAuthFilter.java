@@ -12,6 +12,8 @@ import java.io.IOException;
         "/user",
         "/cards",
         "/cards/*",
+        "/card",
+        "/card/*",
         "/transactions",
         "/transaction/*"
 })

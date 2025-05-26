@@ -9,7 +9,9 @@
   <title>Kofin · Cadastro</title>
   <link rel="stylesheet" href="<c:url value='/css/bootstrap.css'/>" />
   <link rel="stylesheet" href="<c:url value='/css/style.css'/>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
+
 <body>
 <div class="container-fluid vh-100 d-flex p-0">
   <div class="container text-center d-flex flex-column justify-content-center align-items-center gap-5 vh-100 p-0">
@@ -17,8 +19,7 @@
       <img src="<c:url value='/assets/logo-black.svg'/>" alt="Logo" id="logo" />
     </a>
     <div class="d-flex flex-column w-50">
-      <h2>Cadastro de Usuário</h2>
-
+      <h5 class="text-start">Cadastre-se</h5>
       <c:if test="${not empty error}">
         <p class="text-danger">${error}</p>
       </c:if>
@@ -30,7 +31,10 @@
           <input type="password" name="password" class="form-control" placeholder="Senha" required />
           <span class="input-group-text"><i class="bi bi-eye-slash toggle-password"></i></span>
         </div>
-        <button type="submit" class="btn btn-secondary">Continuar</button>
+        <div class="d-flex flex-column justify-content-end">
+          <a href="<c:url value='/login'/>" class="text-warning link-offset-2 link-underline link-underline-opacity-0 align-self-end">Fazer login</a>
+        </div>
+        <button type="submit" class="btn btn-secondary my-3">Continuar</button>
       </form>
     </div>
   </div>

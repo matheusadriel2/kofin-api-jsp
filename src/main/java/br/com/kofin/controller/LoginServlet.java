@@ -7,10 +7,7 @@ import br.com.kofin.model.entities.Users;
 import br.com.kofin.model.entities.UserPassword;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,13 +17,14 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/login.jsp")
+                .forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String email = request.getParameter("email");
+        String email       = request.getParameter("email");
         String rawPassword = request.getParameter("password");
 
         try (UsersDao usersDao = new UsersDao();
@@ -59,7 +57,8 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getId());
 
-            response.sendRedirect(request.getContextPath() + "/dashboard");
+            request.getRequestDispatcher("/WEB-INF/views/loading.jsp")
+                    .forward(request, response);
 
         } catch (SQLException e) {
             throw new ServletException("Erro ao conectar ao banco de dados", e);

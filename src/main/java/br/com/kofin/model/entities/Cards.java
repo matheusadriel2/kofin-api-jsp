@@ -4,20 +4,17 @@ import br.com.kofin.model.enums.CardFlag;
 import br.com.kofin.model.enums.CardType;
 import java.time.LocalDate;
 
-/** Entidade de Cartão do usuário. */
 public class Cards {
 
-    /* ---------- campos ---------- */
     private Integer   id;
-    private String    name;      // apelido escolhido pelo usuário
-    private String    last4;     // “XXXX” ou 4 dígitos
-    private CardType  type;      // DEBIT | CREDIT
-    private LocalDate validity;  // AAAA-MM-01
-    private CardFlag  flag;       // texto / emoji / ícone
+    private String    name;
+    private String    last4;
+    private CardType  type;
+    private LocalDate validity;
+    private CardFlag  flag;
     private LocalDate creationDate;
     private LocalDate updateDate;
 
-    /* ---------- construtores ---------- */
     public Cards() {}
 
     public Cards(Integer id, String name, String last4, CardType type,
@@ -33,7 +30,6 @@ public class Cards {
         this.updateDate = updateDate;
     }
 
-    /* ---------- getters / setters ---------- */
     public Integer getId()                    { return id; }
     public void    setId(Integer id)          { this.id = id; }
 

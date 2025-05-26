@@ -42,6 +42,9 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
+            HttpSession session = request.getSession();
+            session.setAttribute("userId", user.getId());
+
             String token = JwtUtil.generateToken(user.getId());
             Cookie jwtCookie = new Cookie("token", token);
             jwtCookie.setHttpOnly(true);

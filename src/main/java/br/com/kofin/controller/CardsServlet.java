@@ -16,7 +16,6 @@ import java.util.List;
 @WebServlet("/card/*")
 public class CardsServlet extends HttpServlet {
 
-    /* ---------- GET (lista) ---------- */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
@@ -37,7 +36,6 @@ public class CardsServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/views/cards.jsp").forward(req, resp);
     }
 
-    /* ---------- POST (create / update / delete) ---------- */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
@@ -74,7 +72,6 @@ public class CardsServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/dashboard");
     }
 
-    /* ---------- helper ---------- */
     private void fill(HttpServletRequest req, Cards c) {
         c.setName(req.getParameter("name"));
 
@@ -83,10 +80,8 @@ public class CardsServlet extends HttpServlet {
 
         c.setType(CardType.valueOf(req.getParameter("type").toUpperCase()));
 
-        // <input type="month"> fornece AAAA-MM
         c.setValidity(LocalDate.parse(req.getParameter("validity") + "-01"));
 
-        /* flag opcional */
         String flagParam = req.getParameter("flag");
         if (flagParam == null || flagParam.isBlank())
             c.setFlag(null);

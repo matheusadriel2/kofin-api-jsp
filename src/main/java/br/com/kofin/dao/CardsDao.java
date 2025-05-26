@@ -19,7 +19,6 @@ public class CardsDao implements AutoCloseable {
         connection = ConnectionFactory.getConnection();
     }
 
-    /* ---------------- INSERT ---------------- */
     public void register(Cards c, int userId) throws SQLException {
         String sql = """
           INSERT INTO T_CARTOES
@@ -34,7 +33,6 @@ public class CardsDao implements AutoCloseable {
             ps.setString(4, c.getType().name());
             ps.setDate  (5, Date.valueOf(c.getValidity()));
 
-            /* flag pode ser nula */
             if (c.getFlag() == null)
                 ps.setNull(6, Types.VARCHAR);
             else
@@ -44,7 +42,6 @@ public class CardsDao implements AutoCloseable {
         }
     }
 
-    /* ---------------- SELECT ---------------- */
     public Cards search(int id) throws SQLException, EntityNotFoundException {
         try (PreparedStatement ps =
                      connection.prepareStatement("SELECT * FROM T_CARTOES WHERE ID_CARTAO=?")) {
@@ -72,7 +69,6 @@ public class CardsDao implements AutoCloseable {
         }
     }
 
-    /* ---------------- UPDATE ---------------- */
     public void update(Cards c) throws SQLException {
         String sql = """
           UPDATE T_CARTOES SET
@@ -96,7 +92,6 @@ public class CardsDao implements AutoCloseable {
         }
     }
 
-    /* ---------------- DELETE ---------------- */
     public void delete(int id) throws SQLException {
         try (PreparedStatement ps =
                      connection.prepareStatement("DELETE FROM T_CARTOES WHERE ID_CARTAO=?")) {
@@ -105,7 +100,6 @@ public class CardsDao implements AutoCloseable {
         }
     }
 
-    /* ---------------- helper ---------------- */
     private Cards mapRow(ResultSet rs) throws SQLException {
         Cards c = new Cards();
         c.setId      (rs.getInt("ID_CARTAO"));

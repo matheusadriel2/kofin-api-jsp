@@ -3,12 +3,11 @@ package br.com.kofin.model.entities;
 import br.com.kofin.model.enums.*;
 import java.time.LocalDateTime;
 
-/** Entidade de transação financeira. */
 public class Transactions {
 
     private Integer id;
-    private String  name;          // novo: nome da transação
-    private String  category;      // novo: categoria livre
+    private String  name;
+    private String  category;
     private TransactionType type;
     private Double value;
     private PaymentMethod payMethod;
@@ -16,13 +15,10 @@ public class Transactions {
     private Scheduled isScheduled;
     private LocalDateTime transactionDate;
 
-    /* vínculos opcionais */
     private Integer cardId;
     private Integer accountId;
 
     public Transactions(){}
-
-    /* getters / setters ------------------------------------------------------------------ */
 
     public Integer getId()               { return id; }
     public void    setId(Integer id)     { this.id = id; }

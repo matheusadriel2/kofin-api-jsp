@@ -7,7 +7,14 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/dashboard","/user","/cards","/transactions"})
+@WebFilter(urlPatterns = {
+        "/dashboard",
+        "/user",
+        "/cards",
+        "/cards/*",
+        "/transactions",
+        "/transaction/*"
+})
 public class JwtAuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

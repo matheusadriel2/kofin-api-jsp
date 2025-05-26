@@ -14,12 +14,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
-/**
- * Servlet /transaction
- * Ações:
- *   POST /transaction?action=create|update|delete
- *   Após o POST redireciona sempre para /dashboard
- */
 @WebServlet("/transaction")
 public class TransactionsServlet extends HttpServlet {
 
@@ -33,12 +27,20 @@ public class TransactionsServlet extends HttpServlet {
             return;
         }
 
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        Integer userId = (Integer) req.getAttribute("userId");
+        if (userId == null) {
+            HttpSession session = req.getSession(false);
+            if (session != null) {
+                Object uid = session.getAttribute("userId");
+                if (uid instanceof Integer) {
+                    userId = (Integer) uid;
+                }
+            }
+        }
+        if (userId == null) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Usuário não autenticado.");
             return;
         }
-        int userId = (Integer) session.getAttribute("userId");
 
         try (TransactionsDao dao = new TransactionsDao()) {
             switch (action) {
@@ -54,7 +56,10 @@ public class TransactionsServlet extends HttpServlet {
                     int id = Integer.parseInt(required(req, "id"));
                     dao.delete(id);
                 }
-                default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
+                default -> {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ação inválida.");
+                    return;
+                }
             }
         } catch (SQLException e) {
             throw new ServletException("Erro de banco de dados.", e);
@@ -62,15 +67,9 @@ public class TransactionsServlet extends HttpServlet {
             throw new ServletException("Falha ao processar transação.", e);
         }
 
-        // Sempre retorna para a dashboard
         resp.sendRedirect(req.getContextPath() + "/dashboard");
     }
 
-    /**
-     * Constrói o objeto Transactions a partir dos parâmetros de request.
-     * @param req     HttpServletRequest
-     * @param hasId   true se for update (precisa do parâmetro "id")
-     */
     private Transactions buildFromRequest(HttpServletRequest req, boolean hasId) {
         Transactions t = new Transactions();
 
@@ -78,11 +77,9 @@ public class TransactionsServlet extends HttpServlet {
             t.setId(Integer.parseInt(required(req, "id")));
         }
 
-        // Nome e categoria (novos campos)
         t.setName(req.getParameter("txName"));
         t.setCategory(req.getParameter("category"));
 
-        // Tipo, valor, método, transferência e agendamento
         try {
             t.setType(TransactionType.valueOf(required(req, "type").toUpperCase()));
             t.setValue(Double.parseDouble(required(req, "value")));
@@ -93,20 +90,17 @@ public class TransactionsServlet extends HttpServlet {
             throw new IllegalArgumentException("Enum inválido: " + ex.getMessage());
         }
 
-        // Cartão opcional (só se payMethod == CARD)
         String cardParam = req.getParameter("cardId");
         if ("CARD".equalsIgnoreCase(req.getParameter("payMethod"))
                 && cardParam != null && !cardParam.isBlank()) {
             t.setCardId(Integer.parseInt(cardParam));
         }
 
-        // Conta opcional
         String accParam = req.getParameter("accountId");
         if (accParam != null && !accParam.isBlank()) {
             t.setAccountId(Integer.parseInt(accParam));
         }
 
-        // Data da transação
         String date = req.getParameter("date");
         if (date != null && !date.isBlank()) {
             try {
@@ -121,7 +115,6 @@ public class TransactionsServlet extends HttpServlet {
         return t;
     }
 
-    /** Garante que o parâmetro exista e não esteja em branco. */
     private String required(HttpServletRequest req, String name) {
         String v = req.getParameter(name);
         if (v == null || v.isBlank()) {

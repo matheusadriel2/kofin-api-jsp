@@ -13,18 +13,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO responsável pelas operações em T_TRANSACOES.
- * Observação: todas as consultas que retornam listas já vêm ordenadas pela data (mais recente primeiro).
- */
 public class TransactionsDao implements AutoCloseable {
     private final Connection connection;
 
     public TransactionsDao() throws SQLException {
         this.connection = ConnectionFactory.getConnection();
     }
-
-    /* ------------------------- CRUD ------------------------------------------------------- */
 
     public void register(Transactions t, int userId) throws SQLException {
         String sql = """
@@ -39,10 +33,9 @@ public class TransactionsDao implements AutoCloseable {
             if (t.getCardId()    != null) ps.setInt   (2, t.getCardId());    else ps.setNull(2, Types.INTEGER);
             if (t.getAccountId() != null) ps.setInt   (3, t.getAccountId()); else ps.setNull(3, Types.INTEGER);
 
-            ps.setString(4,  t.getName());                  // NM_TRANSACAO
-            ps.setString(5,  t.getCategory());              // CATEGORIA
+            ps.setString(4,  t.getName());
+            ps.setString(5,  t.getCategory());
             ps.setString(6,  "TRX"+System.currentTimeMillis());
-            // usa o code (R/D/I) em vez de name()
             ps.setString(7,  String.valueOf(t.getType().getCode()));
             ps.setDouble(8,  t.getValue());
             ps.setString(9,  t.getPayMethod().name());
@@ -124,9 +117,6 @@ public class TransactionsDao implements AutoCloseable {
         }
     }
 
-    /* ==========  NOVOS MÉTODOS  ============================== */
-
-    /** Lista TODAS as transações do usuário (mais recente primeiro). */
     public List<Transactions> listByUser(int userId) throws SQLException {
         String sql = """
             SELECT * FROM T_TRANSACOES
@@ -143,10 +133,6 @@ public class TransactionsDao implements AutoCloseable {
         }
     }
 
-    /**
-     * Soma o valor de todas as transações do usuário independentemente do tipo.
-     * Entradas contam positivo, saídas/investimentos negativo.
-     */
     public double sumByUser(int userId) throws SQLException {
         String sql = """
             SELECT SUM(
@@ -287,8 +273,6 @@ public class TransactionsDao implements AutoCloseable {
             }
         }
     }
-
-    /* ---------------------- helpers ------------------------------------------------------- */
 
     private Transactions mapRow(ResultSet rs) throws SQLException {
         Transactions t = new Transactions();

@@ -33,7 +33,7 @@
 
 .card-item   {
     min-width:200px; height:105px; margin-right:1rem;
-    background:#F8F9FA; border-radius:.5rem; padding:.75rem;
+    background: #61a2cf; border-radius:.5rem; padding:.75rem;
     position:relative;
 }
 .last4       { font-size:.70rem; }

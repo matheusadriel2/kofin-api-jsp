@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    /* ---------- alternar visibilidade da senha ---------- */
     document.querySelectorAll('.toggle-password').forEach(icon => {
         const pwdInput = icon.closest('.input-group').querySelector('input[type="password"],input[type="text"]');
 
@@ -12,9 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ---------- validação de cada formulário ---------- */
     document.querySelectorAll('form').forEach(form => {
-
         form.addEventListener('submit', ev => {
             let valid = true;
 

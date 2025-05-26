@@ -205,14 +205,14 @@
         </div>
 
         <!-- Card 2 -->
-        <div class="d-flex flex-column align-items-center bg-danger bg-opacity-25 rounded p-3">
+        <div style="min-width: 200px; height: 140px" class="d-flex flex-column align-items-center bg-danger bg-opacity-25 rounded p-3">
           <h6 class="text-danger-emphasis">Saídas (mês)</h6>
           <h4 class="text-danger">R$ ${expenseMonth}</h4>
           <small>Total: R$ ${expenseTotal}</small>
         </div>
 
         <!-- Card 3 -->
-        <div class="d-flex flex-column align-items-center bg-secondary bg-opacity-25 rounded p-3">
+        <div style="min-width: 200px; height: 140px" class="d-flex flex-column align-items-center bg-secondary bg-opacity-25 rounded p-3">
           <h6>Saldo</h6>
           <h4>R$ ${saldoTotal}</h4>
           <small>Mês: R$ ${saldoMes}</small>

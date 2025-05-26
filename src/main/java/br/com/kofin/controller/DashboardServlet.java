@@ -24,12 +24,11 @@ public class DashboardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
-        HttpSession s = req.getSession(false);
-        if (s == null || s.getAttribute("userId") == null) {
+        Integer userId = (Integer) req.getAttribute("userId");
+        if (userId == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-        int userId = (Integer) s.getAttribute("userId");
 
         // Filtro de cartões
         Integer cardFilter = null;

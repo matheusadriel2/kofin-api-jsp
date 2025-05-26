@@ -1,5 +1,7 @@
 package br.com.kofin.controller;
 
+import br.com.kofin.auth.JwtUtil;
+import br.com.kofin.auth.PasswordUtil;
 import br.com.kofin.dao.UsersDao;
 import br.com.kofin.dao.UserPasswordDao;
 import br.com.kofin.exception.EntityNotFoundException;
@@ -15,13 +17,6 @@ import java.sql.SQLException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/login.jsp")
-                .forward(request, response);
-    }
-
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email       = request.getParameter("email");
@@ -30,36 +25,27 @@ public class LoginServlet extends HttpServlet {
         try (UsersDao usersDao = new UsersDao();
              UserPasswordDao pwdDao = new UserPasswordDao()) {
 
-            Users user;
-            try {
-                user = usersDao.searchByEmail(email);
-            } catch (EntityNotFoundException e) {
-                request.setAttribute("error", "E-mail não cadastrado.");
-                doGet(request, response);
-                return;
-            }
+            Users user = usersDao.searchByEmail(email);
+            UserPassword storedPwd = pwdDao.searchByUser(user);
 
-            UserPassword storedPwd;
-            try {
-                storedPwd = pwdDao.searchByUser(user);
-            } catch (EntityNotFoundException e) {
-                request.setAttribute("error", "Nenhuma senha cadastrada para este usuário.");
-                doGet(request, response);
-                return;
-            }
-
-            if (!rawPassword.equals(storedPwd.getPassword())) {
+            if (!PasswordUtil.verifyPassword(rawPassword, storedPwd.getPassword())) {
                 request.setAttribute("error", "Senha incorreta.");
                 doGet(request, response);
                 return;
             }
 
-            HttpSession session = request.getSession();
-            session.setAttribute("userId", user.getId());
+            String token = JwtUtil.generateToken(user.getId());
+            Cookie jwtCookie = new Cookie("token", token);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setPath(request.getContextPath());
+            response.addCookie(jwtCookie);
 
             request.getRequestDispatcher("/WEB-INF/views/loading.jsp")
                     .forward(request, response);
 
+        } catch (EntityNotFoundException e) {
+            request.setAttribute("error", "Credenciais inválidas.");
+            doGet(request, response);
         } catch (SQLException e) {
             throw new ServletException("Erro ao conectar ao banco de dados", e);
         }

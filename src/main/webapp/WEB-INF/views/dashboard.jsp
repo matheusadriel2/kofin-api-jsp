@@ -24,17 +24,25 @@
 </head>
 <body class="bg-light text-dark d-flex">
 
-<!-- ────────────────  SIDEBAR  ──────────────── -->
+<!-- SIDEBAR -->
 <nav id="sidebar" class="sidebar flex-column flex-shrink-0">
-  <!-- Logo / brand -->
   <a href="${pageContext.request.contextPath}/dashboard"
      class="brand text-decoration-none text-dark d-flex align-items-center justify-content-center py-3">
-    <!-- ícone ou imagem pequena   -->
+
     <img src="${pageContext.request.contextPath}/assets/logo-black.svg"
-         alt="Kofin" width="75%" height="75%" class="me-0 me-lg-2 p-4">
+         alt="Kofin"
+         class="sidebar-logo-expanded"
+         style="width:75%;height:75%;padding:1rem;" />
+
+    <div class="sidebar-logo-circle"
+         style="
+           width:1.5rem;
+           height:1.5rem;
+           background:#EDCE78;
+           border-radius:50%;
+         "></div>
   </a>
 
-  <!-- Navegação -->
   <ul class="nav nav-pills flex-column mb-auto w-100">
     <li class="nav-item">
       <a class="nav-link active" href="${pageContext.request.contextPath}/dashboard">
@@ -67,13 +75,11 @@
 
   <hr class="d-none d-lg-block border-secondary my-1">
 
-  <!-- logout na base -->
   <a href="${pageContext.request.contextPath}/logout"
      class="nav-link text-dark logout-link mb-3 mt-lg-auto">
     <i class="bi bi-box-arrow-right me-lg-2"></i>
     <span class="link-text">Sair</span>
   </a>
-
 </nav>
 
 <!-- Off-canvas para tablet/móvel -->
@@ -92,7 +98,7 @@
   </div>
 </div>
 
-<!-- ────────────────  CONTEÚDO  ──────────────── -->
+<!-- CONTEÚDO -->
 <main class="flex-grow-1">
 
   <div class="container-fluid pt-4 mt-2">

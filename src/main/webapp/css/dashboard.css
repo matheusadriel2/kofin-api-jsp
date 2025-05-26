@@ -158,43 +158,85 @@
     opacity: .85;
 }
 
-/* =============  SIDEBAR DESKTOP  ============= */
-.sidebar{
-    position:fixed;
-    top:0; left:0;
-    height:100vh;
-    width:64px;                         /* colapsada */
+/* SIDEBAR DESKTOP */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    width: 64px;
     background: #eff0f1;
-    transition:width .2s;
-    z-index:1040;                       /* acima do conteúdo */
+    transition: width .2s;
+    z-index: 1040;
 }
 .sidebar:hover,
-.sidebar:focus-within{                 /* expande ao hover/foco */
-    width:220px;
+.sidebar:focus-within {
+    width: 220px;
 }
-.sidebar .brand{
-    font-size:1.1rem;
+
+.sidebar .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    font-size: 1.1rem;
 }
-.sidebar .nav-link{
-    color:#343A40;
-    padding:.75rem .5rem;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+
+.sidebar .nav-link {
+    color: #343A40;
+    padding: .75rem .5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .sidebar .nav-link:hover,
-.sidebar .nav-link.active{
-    border-radius: 0;
+.sidebar .nav-link.active {
     background: #e8e8ea;
-    color: #000000;
+    color: #000;
 }
-.sidebar i{ font-size:1.25rem; }
-.sidebar .link-text{                   /* aparece só quando expandido */
-    display:none;
+.sidebar i { font-size: 1.25rem; }
+.sidebar .link-text {
+    display: none;
 }
 .sidebar:hover .link-text,
-.sidebar:focus-within .link-text{
-    display:inline;
+.sidebar:focus-within .link-text {
+    display: inline;
+}
+
+.sidebar .sidebar-logo-expanded {
+    display: none;
+}
+.sidebar .sidebar-logo-circle {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #EDCE78;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.sidebar:hover .sidebar-logo-expanded,
+.sidebar:focus-within .sidebar-logo-expanded {
+    display: block;
+}
+.sidebar:hover .sidebar-logo-circle,
+.sidebar:focus-within .sidebar-logo-circle {
+    display: none;
+}
+
+@media (min-width: 1600px) {
+    .sidebar {
+        width: 220px;
+    }
+    .sidebar .sidebar-logo-expanded {
+        display: block;
+    }
+    .sidebar .sidebar-logo-circle {
+        display: none;
+    }
 }
 
 /* --- NAV-LINK agora fica centralizado no modo compacto

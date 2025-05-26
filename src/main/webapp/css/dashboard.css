@@ -104,29 +104,25 @@
     opacity:1 !important;      /* força aparecer (sobrepõe utilities)    */
     pointer-events:auto;       /* agora pode clicar                      */
 }
-/* cursor de “link” quando passar sobre uma transação */
+
 .tx-item{cursor:pointer;}
-/* wrapper posicionado */
 .tx-col {
     position: relative;
 }
 
-/* scrollable */
-/* Faz .tx-col ser flex coluna e preencher a altura da col-md-4 */
 .tx-col {
     display: flex;
     flex-direction: column;
 }
 
-/* Faz tx-block crescer para preencher todo o wrapper */
 .tx-block {
     flex: 1;
     overflow-y: auto;
-    scrollbar-width: none;         /* Firefox */
-    -ms-overflow-style: none;      /* IE11 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 .tx-block::-webkit-scrollbar {
-    display: none;                 /* Chrome/Safari */
+    display: none;
 }
 
 /* Indicador fixo na base */
@@ -245,39 +241,31 @@
     }
 }
 
-/* --- NAV-LINK agora fica centralizado no modo compacto
-   e ganha padding à esquerda quando a barra expande --- */
 .sidebar .nav-link{
     display:flex;
     align-items:center;
-    gap:.75rem;            /* espaço entre ícone e texto          */
+    gap:.75rem;
     justify-content:center;
-    padding:.75rem 0;      /* ↑↓ / ←→ (0 ←→ encosta menos)        */
+    padding:.75rem 0;
 }
 
 .sidebar:hover   .nav-link,
 .sidebar:focus-within .nav-link{
-    justify-content:flex-start; /* desloca itens p/ a direita      */
-    padding-left:1rem;          /* margem interna confortável      */
+    justify-content:flex-start;
+    padding-left:1rem;
 }
 
-/* marca‐texto (“link-text”) herda o gap acima, não precisa margin */
-
-/* ---------- SIDEBAR ---------- */
-/*   < 1600 px  → colapsada (64 px) e expande no :hover
-     ≥ 1600 px → já nasce expandida (220 px)              */
-@media (min-width:992px){          /* desktop em geral   */
+@media (min-width:992px){
     .sidebar{ width:64px; }
-    main{ margin-left:64px; }      /* não fica coberto   */
+    main{ margin-left:64px; }
     .sidebar:hover,
     .sidebar:focus-within{
         width:220px;
     }
 }
-@media (min-width:1600px){         /* telas muito largas */
-    .sidebar{ width:220px; }       /* sempre expandida   */
+@media (min-width:1600px){
+    .sidebar{ width:220px; }
     main{ margin-left:220px; }
-    /* texto e alinhamento SEM precisar de :hover       */
     .sidebar .link-text{ display:inline; }
     .sidebar .nav-link{
         justify-content:flex-start;
@@ -285,18 +273,17 @@
     }
 }
 
-/* ───────────── ESCONDE NAVBAR NO DESKTOP (>992px) ───────────── */
+/* NAVBAR NO DESKTOP */
 @media (min-width: 992px) {
     .navbar-app .navbar-brand{
         display: none !important;
     }
-    /* já que a navbar some, tira o margin-top do main */
     main {
         margin-top: 0 !important;
     }
 }
 
-/* ──────────── ESCONDE SIDEBAR NO MOBILE (<992px) ──────────── */
+/* MOBILE SIDEBAR */
 @media (max-width: 991.98px) {
     .sidebar {
         display: none !important;
@@ -307,8 +294,7 @@
 }
 
 
-/* ────────────── HAMBURGUER ────────────── */
-/* só aparece quando a sidebar está oculta (mobile) */
+/* HAMBURGUER */
 @media (min-width: 992px) {
     .btn-hamb {
         display: none !important;
@@ -320,30 +306,117 @@
     }
 }
 
-/* aplica um padding interno extra em todas as larguras */
 main {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
 
-/* quando a sidebar está colapsada (64px), soma mais 0.5rem */
 @media (min-width: 992px) and (max-width: 1599.98px) {
     main {
         margin-left: calc(64px + 0.5rem);
     }
 }
 
-/* quando a sidebar está expandida (220px), soma mais 0.5rem */
 @media (min-width: 1600px) {
     main {
         margin-left: calc(220px + 0.5rem);
     }
 }
 
-
-/* remove bullet padrão do UL colado no offcanvas */
 .offcanvas-body ul{ list-style:none; padding:0; margin:0; }
 
 #offcanvasNav.offcanvas-start{
-    width:220px;          /* mesmo width da sidebar aberta        */
+    width:220px;
 }
+
+/* CARD FLAGS */
+.card-flag {
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+    margin-left: 4px;
+    border-radius: 3px;
+    position: relative;
+    vertical-align: middle;
+    font-family: sans-serif;
+    font-size: 8px;
+    line-height: 18px;
+    text-align: center;
+    color: white;
+    overflow: hidden;
+}
+
+/* VISA */
+.card-flag.visa {
+    background: #1a1f71;
+}
+.card-flag.visa::before {
+    content: "VISA";
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transform: skew(-15deg);
+    position: absolute;
+    top: 0; left: 1px;
+}
+
+/* MASTERCARD */
+.card-flag.mastercard {
+    background: transparent;
+}
+.card-flag.mastercard::before,
+.card-flag.mastercard::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    top: 2px;
+}
+.card-flag.mastercard::before {
+    background: #eb001b;
+    left: 1px;
+}
+.card-flag.mastercard::after {
+    background: #f79e1b;
+    left: 11px;
+}
+
+/* ELO */
+.card-flag.elo {
+    background: #00a4e0;
+}
+.card-flag.elo::before {
+    content: "ELO";
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    position: absolute;
+    top: 0; left: 3px;
+    color: #ffd400;
+    text-shadow: 1px 0 #fff;
+}
+
+/* AMEX */
+.card-flag.amex {
+    background: #2e77bb;
+}
+.card-flag.amex::before {
+    content: "AMEX";
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    position: absolute;
+    top: 0; left: 3px;
+}
+.card-flag.amex::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 5px;
+    background: linear-gradient(
+            90deg,
+            #2e77bb 0%, #fff 25%,
+            #2e77bb 50%, #fff 75%,
+            #2e77bb 100%
+    );
+}
+

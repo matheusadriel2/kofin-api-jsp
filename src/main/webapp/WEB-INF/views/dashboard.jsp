@@ -152,10 +152,11 @@
               ${fn:substring(c.validity,5,7)}/${fn:substring(c.validity,2,4)}
             </span>
 
-                <!-- imagem só se houver bandeira -->
                 <c:if test="${not empty c.flag}">
-                  <img src="${pageContext.request.contextPath}/img/flags/${c.flag.img}"
-                       alt="${c.flag}" width="26" height="18"/>
+                  <span
+                    class="card-flag ${fn:toLowerCase(c.flag.name())}"
+                    title="${c.flag}">
+                  </span>
                 </c:if>
               </small>
 

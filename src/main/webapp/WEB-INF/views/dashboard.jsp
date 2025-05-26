@@ -195,7 +195,6 @@
 
       <!-- row-cols-* controla colunas; 1 nos xs, 3 a partir de sm -->
       <div class="row row-cols-1 row-cols-md-3 g-3 w-auto">
-
         <div class="col-md-auto d-flex">
           <div class="bg-success bg-opacity-25 rounded p-3 text-center d-flex flex-column justify-content-center">
             <h6 class="text-success-emphasis">Entradas (mês)</h6>

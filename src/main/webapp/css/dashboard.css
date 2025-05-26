@@ -26,13 +26,14 @@
 .h-scroll {
     overflow-x: auto;
     white-space: nowrap;
-    padding-right: calc(1rem + 50px); /* espaço pro + */
+    padding-right: calc(1rem + 50px);
 }
+
 .h-scroll::-webkit-scrollbar{display:none;}
 
 .card-item   {
     min-width:200px; height:105px; margin-right:1rem;
-    background:#212529; border-radius:.5rem; padding:.75rem;
+    background:#F8F9FA; border-radius:.5rem; padding:.75rem;
     position:relative;
 }
 .last4       { font-size:.70rem; }
@@ -47,15 +48,8 @@
 }
 
 .add-card-btn {
-    position:absolute;
-    right:1rem;
-    top:50%; transform:translateY(-50%);
-    width:50px; height:105px; border-radius:.5rem;
-    background:#0d6efd; color:#fff; font-size:2rem;
-    display:flex; align-items:center; justify-content:center;
-    cursor: pointer;            /* mostra mãozinha */
-    pointer-events: auto;       /* garante que seja clicável */
-    z-index: 2;                 /* fica sempre por cima */
+    width: 28px;
+    height: 28px;
 }
 
 /* resumo */
@@ -70,11 +64,23 @@
 }
 
 /* ============ BARRA de SCROLL (hint) ============ */
-.scroll-hint{position:absolute;right:calc(55px + 1rem); /* ao lado do + */
-    top:50%;transform:translateY(-50%);
-    width:6px;height:42px;border-radius:3px;
-    background:#6c757d;opacity:0;transition:opacity .2s;pointer-events:none;}
-.show-hint  {opacity:.9;}
+/* nova barra-dica HORIZONTAL */
+.scroll-hint {
+    position: absolute;
+    bottom: 8px;              /* fixa junto à base do container */
+    left: 50%;                /* centraliza horizontalmente */
+    transform: translateX(-50%);
+    width: 42px;              /* comprimento maior, alinhado ao scroll */
+    height: 6px;              /* espessura fina */
+    border-radius: 3px;
+    background: #6c757d;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+}
+.show-hint {
+    opacity: .9;
+}
 
 /* ============ LISTA de TRANSAÇÕES ============ */
 .tx-block{max-height:420px;overflow-y:auto;}
@@ -208,16 +214,6 @@
 }
 
 /* marca‐texto (“link-text”) herda o gap acima, não precisa margin */
-
-
-/* ---------- TOP NAVBAR fixo ---------- */
-.navbar-app{
-    position:fixed; top:0; left:0; right:0;
-    z-index:1030;                 /* acima da sidebar   */
-}
-
-/* dá espaço p/ o conteúdo, pois a navbar tem 56 px */
-main{ margin-top:56px; }
 
 /* ---------- SIDEBAR ---------- */
 /*   < 1600 px  → colapsada (64 px) e expande no :hover

@@ -8,6 +8,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>kofin · Dashboard</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet"
         href="${pageContext.request.contextPath}/css/bootstrap.css"/>
   <link rel="stylesheet"
@@ -15,6 +18,9 @@
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+  <style>
+    html, body { font-family: 'Roboto', sans-serif; }
+  </style>
 </head>
 <body class="bg-light text-dark d-flex">
 
@@ -89,11 +95,11 @@
 <!-- ────────────────  CONTEÚDO  ──────────────── -->
 <main class="flex-grow-1">
 
-  <div class="container-fluid py-4">
+  <div class="container-fluid pt-4 mt-2">
 
   <!-- header -->
-  <div class="d-flex justify-content-between mb-4">
-    <h2>Dashboard</h2>
+  <div class="d-flex justify-content-between mb-3">
+    <h3>Dashboard</h3>
   </div>
 
   <!-- =================== ROW: CARTÕES + RESUMO =================== -->
@@ -101,10 +107,19 @@
 
     <!-- =============== BLOCO: CARTÕES ================= -->
     <div class="col-12 col-xl-5">
-      <h5 class="mb-2">Cartões</h5>
-      <h6 class="mb-3">Gerencia todos os seus cartoes aqui...</h6>
+      <div class="d-flex flex-row justify-content-between">
+        <div>
+          <h5 class="mb-2">Cartões</h5>
+          <h6 class="mb-1">Gerencie seus cartões</h6>
+        </div>
 
-      <div class="bg-light rounded p-3 cards-wrap">
+        <!-- botão + para novo cartão -->
+        <button
+                class="btn btn-sm btn-outline-secondary rounded-circle p-0 add-card-btn align-self-end"
+                data-bs-toggle="modal"
+                data-bs-target="#newCardModal">+</button>
+      </div>
+      <div class="bg-light rounded px-0 cards-wrap">
 
         <!-- carrossel ------------------------------------------------- -->
         <div class="h-scroll d-flex">
@@ -159,9 +174,7 @@
 
         </div><!-- /h-scroll -->
 
-        <!-- botão + para novo cartão -->
-        <button class="add-card-btn"
-                data-bs-toggle="modal" data-bs-target="#newCardModal">+</button>
+
 
         <!-- barra‐dica de scroll -->
         <div class="scroll-hint" id="scrollHint"></div>
@@ -655,6 +668,16 @@
       card.classList.toggle('show-actions');
     });
   });
+
+  document.querySelectorAll('.h-scroll').forEach(el => {
+    el.addEventListener('wheel', function(e) {
+      // só age em scroll vertical do mouse
+      if (e.deltaY === 0) return;
+      e.preventDefault();              // impede scroll vertical da página
+      this.scrollLeft += e.deltaY;     // aplica movimento horizontal
+    }, { passive: false });
+  });
+
 
   // hint de scroll
   const wrap   = document.querySelector('.cards-wrap');

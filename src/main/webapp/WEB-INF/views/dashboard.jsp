@@ -111,80 +111,89 @@
           <div>
             <h5>Cartões</h5>
             <h6 class="mb-0">Gerencie seus cartões</h6>
+          </div>
+          <button
+                  class="btn btn-sm btn-outline-secondary rounded-circle p-0 add-card-btn align-self-end"
+                  data-bs-toggle="modal"
+                  data-bs-target="#newCardModal">+</button>
         </div>
 
-        <button
-                class="btn btn-sm btn-outline-secondary rounded-circle p-0 add-card-btn align-self-end"
-                data-bs-toggle="modal"
-                data-bs-target="#newCardModal">+</button>
-      </div>
-      <div class="bg-light rounded p-0 cards-wrap">
+        <div class="bg-light rounded p-0 cards-wrap">
+          <div class="h-scroll d-flex">
 
-        <div class="h-scroll d-flex">
-
-          <c:forEach items="${cards}" var="c">
-            <div class="card-item">
-
-              <h6 class="mb-1 card-name">
-                <c:choose>
-                  <c:when test="${fn:length(c.name) > 17}">
-                    ${fn:substring(c.name,0,17)}&hellip;
-                  </c:when>
-                  <c:otherwise>${c.name}</c:otherwise>
-                </c:choose>
-              </h6>
-
-              <strong class="last4 d-block">**** ${c.last4}</strong>
-              <small class="d-block">${c.type}</small>
-
-              <small class="d-flex justify-content-between">
-            <span>
-              Val:
-              ${fn:substring(c.validity,5,7)}/${fn:substring(c.validity,2,4)}
-            </span>
-
-                <c:if test="${not empty c.flag}">
-                  <span
-                    class="card-flag ${fn:toLowerCase(c.flag.name())}"
-                    title="${c.flag}">
-                  </span>
-                </c:if>
-              </small>
-
-              <div class="card-actions">
-                <button class="btn btn-sm btn-outline-light me-1"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editCardModal"
-                        data-id        ="${c.id}"
-                        data-name      ="${c.name}"
-                        data-last4     ="${c.last4}"
-                        data-type      ="${c.type}"
-                        data-validity  ="${c.validity}"
-                        data-flag      ="${c.flag}">
-                  ✎
-                </button>
-
-                <form method="post"
-                      action="${pageContext.request.contextPath}/cards"
-                      onclick="event.stopPropagation()"
-                      onsubmit="return confirm(
-                'Ao excluir este cartão, TODAS as transações associadas serão removidas.\n' +
-                'Deseja continuar?'
-              );">
-                  <input type="hidden" name="action" value="delete"/>
-                  <input type="hidden" name="id"     value="${c.id}"/>
-                  <button type="submit"
-                          class="btn btn-sm btn-outline-danger">🗑</button>
-                </form>
+            <c:if test="${empty cards}">
+              <div class="card-item placeholder d-flex align-items-center justify-content-center text-secondary">
+                Sem cartões
               </div>
-            </div>
-          </c:forEach>
+            </c:if>
 
+            <c:forEach items="${cards}" var="c">
+              <div class="card-item position-relative">
+                <!-- chip -->
+                <div class="card-chip"></div>
+
+                <!-- bandeira no topo-direito -->
+                <c:if test="${not empty c.flag}">
+                  <span class="card-flag ${fn:toLowerCase(c.flag.name())}"
+                    title="${c.flag}"
+                    style="position:absolute; top:8px; right:8px;"></span>
+                </c:if>
+
+                <div class="card-body">
+                  <h6 class="card-name mb-1">
+                    <c:choose>
+                      <c:when test="${fn:length(c.name) > 17}">
+                        ${fn:substring(c.name,0,17)}&hellip;
+                      </c:when>
+                      <c:otherwise>${c.name}</c:otherwise>
+                    </c:choose>
+                  </h6>
+                  <strong class="card-last4">**** ${c.last4}</strong>
+                </div>
+
+                <span class="badge bg-white text-dark"
+                      style="
+                      position:absolute;
+                      bottom:.5rem;
+                      right:.5rem;
+                      font-size:.65rem;
+                      padding:.2rem .4rem;
+                      ">
+                      ${c.type == 'DEBIT' ? 'Débito' : 'Crédito'}
+                </span>
+
+                <!-- Ações (editar / excluir) -->
+                <div class="card-actions">
+                  <button class="btn btn-sm btn-outline-light me-1"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editCardModal"
+                          data-id="${c.id}"
+                          data-name="${c.name}"
+                          data-last4="${c.last4}"
+                          data-type="${c.type}"
+                          data-validity="${c.validity}"
+                          data-flag="${c.flag}">
+                    ✎
+                  </button>
+                  <form method="post"
+                        action="${pageContext.request.contextPath}/cards"
+                        onclick="event.stopPropagation()"
+                        onsubmit="return confirm(
+              'Ao apagar este cartão, todas as transações associadas também serão removidas.\n' +
+              'Deseja continuar?'
+            );">
+                    <input type="hidden" name="action" value="delete"/>
+                    <input type="hidden" name="id"     value="${c.id}"/>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                  </form>
+                </div>
+              </div>
+            </c:forEach>
+
+          </div>
+          <div class="scroll-hint" id="scrollHint"></div>
         </div>
-
-        <div class="scroll-hint" id="scrollHint"></div>
       </div>
-    </div>
 
       <!-- RESUMO -->
       <div class="col-12 col-xxl-7 d-flex flex-column border border-dark rounded-2 p-4">

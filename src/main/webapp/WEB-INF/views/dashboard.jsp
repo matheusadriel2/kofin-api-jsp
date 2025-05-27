@@ -110,15 +110,14 @@
     <h3>Dashboard</h3>
   </div>
 
-  <!-- =================== ROW: CARTÕES + RESUMO =================== -->
-  <div class="row gy-4 mb-5 gap-3">
-
-    <!-- =============== BLOCO: CARTÕES ================= -->
-    <div class="col-12 col-xl-5 d-flex flex-column rounded-2 p-4 panel">
-      <div class="d-flex flex-row justify-content-between mb-4">
-        <div>
-          <h5 class="mb-2">Cartões</h5>
-          <h6 class="mb-0 text-dark text-opacity-75">Gerencie seus cartões</h6>
+    <!-- ROW: CARTÕES + RESUMO -->
+    <div id="cards-summary-row" class="row gy-4 gx-1 mb-5">
+      <!-- CARTÕES: full-width até 1400px, 5/12 depois -->
+      <div class="col-12 col-xxl-5 d-flex flex-column border border-dark rounded-2 p-4">
+        <div class="d-flex justify-content-between mb-4">
+          <div>
+            <h5>Cartões</h5>
+            <h6 class="mb-0">Gerencie seus cartões</h6>
         </div>
 
         <!-- botão + para novo cartão -->
@@ -164,7 +163,7 @@
 
               <!-- botões de ação ------------------------------------- -->
               <div class="card-actions">
-                <button class="btn btn-sm btn-outline-secondary me-1"
+                <button class="btn btn-sm btn-outline-light me-1"
                         data-bs-toggle="modal" data-bs-target="#editCardModal"
                         data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
                         data-type="${c.type}" data-validity="${c.validity}"
@@ -183,50 +182,37 @@
 
         </div><!-- /h-scroll -->
 
-
-
         <!-- barra‐dica de scroll -->
         <div class="scroll-hint" id="scrollHint"></div>
       </div>
     </div><!-- /Cartões -->
 
-    <!-- Resumo ------------------------------------------------------ -->
-
-    <div class="d-flex flex-column align-items-start rounded-2 p-4 w-auto panel">
-      <h5 class="mb-2">Resumo</h5>
-      <h6 class="mb-4 text-dark text-opacity-75">Confira suas entradas e despesas semanais</h6>
-
-      <!-- container flex: coluna no XS, linha no MD+, gap entre cards, centralizado -->
-      <div class="d-flex flex-column flex-md-row justify-content-center gap-3 w-auto">
-
-        <!-- Card 1 -->
-        <div style="min-width: 200px; height: 140px" class="d-flex flex-column rounded p-3 resume">
-          <h6 class="text-secondary">Entradas (mês)</h6>
-          <h4 class="text-success fw-bold">R$ ${incomeMonth}</h4>
-          <small class="text-secondary">Total: R$ ${incomeTotal}</small>
+      <!-- RESUMO -->
+      <div class="col-12 col-xxl-7 d-flex flex-column border border-dark rounded-2 p-4">
+        <h5>Resumo</h5>
+        <h6 class="mb-3">Confira suas entradas e despesas semanais</h6>
+        <div class="dash-summary flex-grow-1 flex-md-row gap-3">
+          <div class="flex-fill bg-success bg-opacity-25 rounded p-3">
+            <h6 class="text-success-emphasis">Entradas (mês)</h6>
+            <h4 class="text-success">R$ ${incomeMonth}</h4>
+            <small>Total: R$ ${incomeTotal}</small>
+          </div>
+          <div class="flex-fill bg-danger bg-opacity-25 rounded p-3">
+            <h6 class="text-danger-emphasis">Saídas (mês)</h6>
+            <h4 class="text-danger">R$ ${expenseMonth}</h4>
+            <small>Total: R$ ${expenseTotal}</small>
+          </div>
+          <div class="flex-fill bg-secondary bg-opacity-25 rounded p-3">
+            <h6>Saldo</h6>
+            <h4>R$ ${saldoTotal}</h4>
+            <small>Mês: R$ ${saldoMes}</small>
+          </div>
         </div>
-
-        <!-- Card 2 -->
-        <div style="min-width: 200px; height: 140px" class="d-flex flex-column rounded p-3 resume">
-          <h6 class="text-secondary">Saídas (mês)</h6>
-          <h4 class="text-danger fw-bold">R$ ${expenseMonth}</h4>
-          <small class="text-secondary">Total: R$ ${expenseTotal}</small>
-        </div>
-
-        <!-- Card 3 -->
-        <div style="min-width: 200px; height: 140px" class="d-flex flex-column rounded p-3 resume">
-          <h6 class="text-secondary">Saldo</h6>
-          <h4 class="fw-bold">R$ ${saldoTotal}</h4>
-          <small class="text-secondary">Mês: R$ ${saldoMes}</small>
-        </div>
-
       </div>
     </div>
 
-  </div><!-- /row Cartões + Resumo -->
-
   <!-- ================= BLOCO: TRANSAÇÕES ================= -->
-  <div class="col-12 d-flex flex-column rounded-2 p-4 panel">
+  <div class="col-12">
 
     <div>
       <h5 class="mb-2">Transações</h5>

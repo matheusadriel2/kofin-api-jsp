@@ -8,7 +8,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>kofin · Dashboard</title>
 
-  <!-- Google Fonts: Poppins, Inter, Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +17,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"/>
 
   <style>
-    /* Font stack: Poppins primary, Inter secondary, Montserrat tertiary */
     html, body {
       font-family: 'Montserrat', sans-serif;
     }
@@ -84,20 +82,16 @@
   </a>
 </nav>
 
-<!-- Off-canvas para tablet/móvel -->
 <div class="offcanvas offcanvas-start text-dark" tabindex="-1" id="offcanvasNav">
   <div class="offcanvas-header">
     <a href="${pageContext.request.contextPath}/dashboard"
        class="brand text-decoration-none text-dark d-flex align-items-center justify-content-center py-3">
-      <!-- ícone ou imagem pequena   -->
       <img src="${pageContext.request.contextPath}/assets/logo-white.svg"
            alt="Kofin" width="40" height="40" class="me-0 me-lg-2">
     </a>
     <button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
   </div>
-  <div class="offcanvas-body p-0">
-    <!-- reutiliza o mesmo <ul> da sidebar via JS -->
-  </div>
+  <div class="offcanvas-body p-0"></div>
 </div>
 
 <!-- CONTEÚDO -->
@@ -105,14 +99,13 @@
 
   <div class="container-fluid pt-4 mt-2">
 
-  <!-- header -->
   <div class="d-flex justify-content-between mb-3">
     <h3>Dashboard</h3>
   </div>
 
     <!-- ROW: CARTÕES + RESUMO -->
     <div id="cards-summary-row" class="row gy-4 gx-1 mb-5">
-      <!-- CARTÕES: full-width até 1400px, 5/12 depois -->
+      <!-- CARTÕES -->
       <div class="col-12 col-xxl-5 d-flex flex-column border border-dark rounded-2 p-4">
         <div class="d-flex justify-content-between mb-4">
           <div>
@@ -120,7 +113,6 @@
             <h6 class="mb-0">Gerencie seus cartões</h6>
         </div>
 
-        <!-- botão + para novo cartão -->
         <button
                 class="btn btn-sm btn-outline-secondary rounded-circle p-0 add-card-btn align-self-end"
                 data-bs-toggle="modal"
@@ -128,13 +120,11 @@
       </div>
       <div class="bg-light rounded p-0 cards-wrap">
 
-        <!-- carrossel ------------------------------------------------- -->
         <div class="h-scroll d-flex">
 
           <c:forEach items="${cards}" var="c">
             <div class="card-item">
 
-              <!-- apelido do cartão (reticências se longo) -->
               <h6 class="mb-1 card-name">
                 <c:choose>
                   <c:when test="${fn:length(c.name) > 17}">
@@ -161,7 +151,6 @@
                 </c:if>
               </small>
 
-              <!-- botões de ação ------------------------------------- -->
               <div class="card-actions">
                 <button class="btn btn-sm btn-outline-light me-1"
                         data-bs-toggle="modal" data-bs-target="#editCardModal"
@@ -180,12 +169,11 @@
             </div>
           </c:forEach>
 
-        </div><!-- /h-scroll -->
+        </div>
 
-        <!-- barra‐dica de scroll -->
         <div class="scroll-hint" id="scrollHint"></div>
       </div>
-    </div><!-- /Cartões -->
+    </div>
 
       <!-- RESUMO -->
       <div class="col-12 col-xxl-7 d-flex flex-column border border-dark rounded-2 p-4">
@@ -211,7 +199,7 @@
       </div>
     </div>
 
-  <!-- ================= BLOCO: TRANSAÇÕES ================= -->
+  <!-- BLOCO: TRANSAÇÕES -->
   <div class="col-12">
 
     <div>
@@ -219,14 +207,13 @@
       <h6 class="mb-0 me-auto text-dark text-opacity-75">Movimentos recentes</h6>
     </div>
 
-    <!-- filtros (multi-critério) ------------------------------------------------ -->
+    <!-- filtros (multi-critério) -->
     <div class="d-flex flex-wrap gap-3 align-items-end mb-3">
 
       <form class="row row-cols-auto g-2 align-items-end"
             method="get"
             action="${pageContext.request.contextPath}/dashboard">
 
-        <!-- cartão -->
         <div class="col">
           <label class="form-label mb-0 small">Cartão</label>
           <select name="card" class="form-select form-select-sm">

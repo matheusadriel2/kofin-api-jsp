@@ -94,7 +94,6 @@
   <div class="offcanvas-body p-0"></div>
 </div>
 
-<!-- CONTEÚDO -->
 <main class="flex-grow-1">
 
   <div class="container-fluid pt-4 mt-2">
@@ -103,9 +102,7 @@
       <h3>Dashboard</h3>
     </div>
 
-    <!-- ROW: CARTÕES + RESUMO -->
     <div id="cards-summary-row" class="row gy-4 gx-1 mb-5">
-      <!-- CARTÕES -->
       <div style="border: 1px solid #d8d8db; border-radius: 0.25rem 0 0 0.25rem;" class="col-12 col-xxl-5 d-flex flex-column p-4">
         <div class="d-flex justify-content-between mb-4">
           <div>
@@ -129,10 +126,7 @@
 
             <c:forEach items="${cards}" var="c">
               <div class="card-item position-relative">
-                <!-- chip -->
                 <div class="card-chip"></div>
-
-                <!-- bandeira no topo-direito -->
                 <c:if test="${not empty c.flag}">
                   <span class="card-flag ${fn:toLowerCase(c.flag.name())}"
                         title="${c.flag}"
@@ -161,8 +155,6 @@
                       ">
                     ${c.type == 'DEBIT' ? 'Débito' : 'Crédito'}
                 </span>
-
-                <!-- Ações (editar / excluir) -->
                 <div class="card-actions">
                   <button class="btn btn-sm btn-outline-light me-1"
                           data-bs-toggle="modal"
@@ -195,7 +187,6 @@
         </div>
       </div>
 
-      <!-- RESUMO -->
       <div style="border: 1px solid #d8d8db; border-radius: 0 0.25rem 0.25rem 0; border-left: none;" class="col-12 col-xxl-7 d-flex flex-column  p-4">
         <h5>Resumo</h5>
         <h6 class="mb-3 text-dark text-opacity-75">Confira suas entradas e despesas semanais</h6>
@@ -219,7 +210,6 @@
       </div>
     </div>
 
-    <!-- BLOCO: TRANSAÇÕES -->
     <div style="border: 1px solid #d8d8db; border-radius: 0.25rem;" class="col-12 p-4">
 
       <div>
@@ -287,7 +277,6 @@
           <div class="col">
             <button class="btn btn-sm btn-outline-secondary">Filtrar</button>
           </div>
-          <%-- ---------- BOTÃO “LIMPAR” (aparece só quando há parâmetros) --------- --%>
           <c:if test="${param.card  ne null or
                param.cat   ne null or
                param.q     ne null or
@@ -301,25 +290,21 @@
 
       </div>
 
-      <!-- colunas -------------------------------------------------------------- -->
       <div class="bg-light rounded p-3">
         <div class="row row-cols-1 row-cols-md-3 g-5 justify-content-between">
 
-          <!-- Entradas -->
           <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
             <jsp:param name="title"    value="Entradas"/>
             <jsp:param name="listName" value="txIncome"/>
             <jsp:param name="type"     value="INCOME"/>
           </jsp:include>
 
-          <!-- Saídas -->
           <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
             <jsp:param name="title"    value="Saídas"/>
             <jsp:param name="listName" value="txExpense"/>
             <jsp:param name="type"     value="EXPENSE"/>
           </jsp:include>
 
-          <!-- Investimentos -->
           <jsp:include page="/WEB-INF/views/fragments/txColumn.jsp">
             <jsp:param name="title"    value="Investimentos"/>
             <jsp:param name="listName" value="txInvestment"/>
@@ -327,15 +312,10 @@
           </jsp:include>
 
         </div>
-      </div><!-- /bg-secondary -->
-
-    </div><!-- /col-12 -->
-
+      </div>
+    </div>
   </div>
 
-
-  <!-- MODAIS -->
-  <!-- Modal: criação de cartão  -->
   <div class="modal fade" id="newCardModal" tabindex="-1">
     <div class="modal-dialog">
       <form class="modal-content" method="post" action="${pageContext.request.contextPath}/cards">
@@ -347,13 +327,11 @@
         </div>
 
         <div class="modal-body">
-          <!-- nome -->
           <div class="mb-3">
             <label class="form-label">Nome do cartão</label>
             <input type="text" name="name" class="form-control" required/>
           </div>
 
-          <!-- últimos 4 -->
           <div class="mb-3">
             <label class="form-label">Últimos 4 dígitos</label>
             <input type="text" name="last4" class="form-control"
@@ -397,7 +375,6 @@
   </div>
 
 
-  <!-- Modal: editar cartão -->
   <div class="modal fade" id="editCardModal" tabindex="-1">
     <div class="modal-dialog">
       <form class="modal-content" method="post" action="${pageContext.request.contextPath}/cards">
@@ -453,7 +430,6 @@
     </div>
   </div>
 
-  <!-- MODAL: NOVA TRANSAÇÃO -->
   <div class="modal fade" id="newTxModal" tabindex="-1">
     <div class="modal-dialog">
       <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -537,8 +513,6 @@
     </div>
   </div>
 
-
-  <!-- MODAL: EDITAR TRANSAÇÃO -->
   <div class="modal fade" id="editTxModal" tabindex="-1">
     <div class="modal-dialog">
       <form class="modal-content" method="post" action="${pageContext.request.contextPath}/transaction">
@@ -624,7 +598,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VISUALIZAR TRANSAÇÃO -->
   <div class="modal fade" id="viewTxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-sm">
@@ -676,8 +649,6 @@
       </div>
     </div>
   </div>
-
-
   <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
   <script src="${pageContext.request.contextPath}/js/dashboard.js"></script>
 </main>

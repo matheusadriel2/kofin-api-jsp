@@ -153,17 +153,28 @@
 
               <div class="card-actions">
                 <button class="btn btn-sm btn-outline-light me-1"
-                        data-bs-toggle="modal" data-bs-target="#editCardModal"
-                        data-id="${c.id}" data-name="${c.name}" data-last4="${c.last4}"
-                        data-type="${c.type}" data-validity="${c.validity}"
-                        data-flag="${c.flag}">✎</button>
+                        data-bs-toggle="modal"
+                        data-bs-target="#editCardModal"
+                        data-id        ="${c.id}"
+                        data-name      ="${c.name}"
+                        data-last4     ="${c.last4}"
+                        data-type      ="${c.type}"
+                        data-validity  ="${c.validity}"
+                        data-flag      ="${c.flag}">
+                  ✎
+                </button>
 
-                <form class="d-inline" method="post"
+                <form method="post"
                       action="${pageContext.request.contextPath}/cards"
-                      onclick="event.stopPropagation()">
+                      onclick="event.stopPropagation()"
+                      onsubmit="return confirm(
+                'Ao excluir este cartão, TODAS as transações associadas serão removidas.\n' +
+                'Deseja continuar?'
+              );">
                   <input type="hidden" name="action" value="delete"/>
                   <input type="hidden" name="id"     value="${c.id}"/>
-                  <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                  <button type="submit"
+                          class="btn btn-sm btn-outline-danger">🗑</button>
                 </form>
               </div>
             </div>

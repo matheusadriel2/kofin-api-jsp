@@ -266,3 +266,14 @@ viewModal.addEventListener('show.bs.modal', ev => {
     document.getElementById('tx-pm').textContent   = data.pm;
     document.getElementById('tx-date').textContent = data.date.replace('T',' ').slice(0,16);
 });
+
+const editModal = document.getElementById('editCardModal');
+editModal.addEventListener('show.bs.modal', e => {
+    const btn = e.relatedTarget;
+    editModal.querySelector('#editCardId')      .value = btn.dataset.id;
+    editModal.querySelector('#editCardName')    .value = btn.dataset.name;
+    editModal.querySelector('#editCardLast4')   .value = btn.dataset.last4;
+    editModal.querySelector('#editCardType')    .value = btn.dataset.type;
+    editModal.querySelector('#editCardValidity').value = btn.dataset.validity;
+    editModal.querySelector('#editCardFlag')    .value = btn.dataset.flag;
+});

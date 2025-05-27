@@ -8,7 +8,7 @@
 <div class="col-md-4 d-flex flex-column">  <!-- só uma coluna -->
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">${param.title}</h6>
-        <button class="btn btn-sm btn-outline-light rounded-circle p-0"
+        <button class="btn btn-sm btn-outline-secondary rounded-circle p-0"
                 style="width:28px;height:28px;line-height:26px"
                 data-bs-toggle="modal"
                 data-bs-target="#newTxModal"
@@ -16,7 +16,7 @@
     </div>
 
     <div class="tx-col position-relative flex-grow-1 d-flex flex-column">
-        <div class="bg-dark bg-opacity-25 rounded p-3 tx-block
+        <div style="background-color: #EFF0F1;" class="rounded p-3 tx-block
                 ${empty txList ? 'd-flex flex-column justify-content-center' : ''}">
 
             <c:choose>
@@ -51,7 +51,7 @@
                                         <small class="d-block text-muted">${t.category}</small>
                                     </c:if>
                                     <small class="d-block">
-                                        <strong>R$ ${t.value}</strong><br/>
+                                        <strong class="text-secondary">R$ ${t.value}</strong><br/>
                                         <c:choose>
                                             <c:when test="${t.payMethod == 'CARD'}">
                                                 CARD — ****
@@ -78,7 +78,7 @@
                                         data-action="view-receipt"
                                         data-bs-toggle="modal"
                                         data-bs-target="#viewTxModal">👁</button>
-                                <button class="btn btn-sm btn-outline-light me-1"
+                                <button class="btn btn-sm btn-outline-secondary me-1"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editTxModal"
                                         data-id="${t.id}"

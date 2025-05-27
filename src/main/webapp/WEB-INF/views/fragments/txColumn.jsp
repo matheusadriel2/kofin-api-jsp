@@ -2,10 +2,9 @@
 <%@ taglib prefix="c"  uri="jakarta.tags.core"      %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<%-- recebe: title | listName | type --%>
 <c:set var="txList" value="${requestScope[param.listName]}" />
 
-<div class="col-md-4 d-flex flex-column">  <!-- só uma coluna -->
+<div class="col-md-4 d-flex flex-column">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">${param.title}</h6>
         <button class="btn btn-sm btn-outline-secondary rounded-circle p-0"
@@ -97,6 +96,6 @@
                 </c:otherwise>
             </c:choose>
         </div>
-        <div class="tx-scroll-indicator"></div>  <!-- indicador fixo na base -->
+        <div class="tx-scroll-indicator"></div>
     </div>
 </div>

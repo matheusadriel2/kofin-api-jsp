@@ -27,12 +27,11 @@ public class TransactionsDao implements AutoCloseable {
                NM_TRANSACAO, CATEGORIA, CD_TRANSACAO, TIPO_TRANSACAO, VALOR, PGT_METODO,
                NR_TRANSFERENCIA, ESTA_AGENDADA, DT_TRANSACAO)
             VALUES (seq_id_transacao.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
+        """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt   (1, userId);
             if (t.getCardId()    != null) ps.setInt   (2, t.getCardId());    else ps.setNull(2, Types.INTEGER);
             if (t.getAccountId() != null) ps.setInt   (3, t.getAccountId()); else ps.setNull(3, Types.INTEGER);
-
             ps.setString(4,  t.getName());
             ps.setString(5,  t.getCategory());
             ps.setString(6,  "TRX"+System.currentTimeMillis());
@@ -45,6 +44,14 @@ public class TransactionsDao implements AutoCloseable {
                     Timestamp.valueOf(t.getTransactionDate() != null
                             ? t.getTransactionDate()
                             : LocalDateTime.now()));
+            ps.executeUpdate();
+        }
+    }
+
+    public void deleteByCardId(int cardId) throws SQLException {
+        String sql = "DELETE FROM T_TRANSACOES WHERE T_CARTOES_ID_CARTAO = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, cardId);
             ps.executeUpdate();
         }
     }

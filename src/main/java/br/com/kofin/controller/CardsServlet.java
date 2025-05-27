@@ -20,13 +20,11 @@ public class CardsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
-
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
         int userId = (Integer) session.getAttribute("userId");
         try (CardsDao dao = new CardsDao()) {
             List<Cards> list = dao.listByUser(userId);
@@ -41,7 +39,6 @@ public class CardsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
-
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -75,7 +72,7 @@ public class CardsServlet extends HttpServlet {
         } catch (EntityNotFoundException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Cartão não encontrado.");
             return;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new ServletException("Erro ao processar operação de cartão", e);
         }
 
@@ -84,13 +81,10 @@ public class CardsServlet extends HttpServlet {
 
     private void fill(HttpServletRequest req, Cards c) {
         c.setName(req.getParameter("name"));
-
         String last4 = req.getParameter("last4");
         c.setLast4((last4 == null || last4.isBlank()) ? "XXXX" : last4);
-
         c.setType(CardType.valueOf(req.getParameter("type").toUpperCase()));
         c.setValidity(LocalDate.parse(req.getParameter("validity") + "-01"));
-
         String flag = req.getParameter("flag");
         c.setFlag((flag == null || flag.isBlank())
                 ? null

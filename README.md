@@ -23,12 +23,12 @@
 
 ## Sections
 
-- [ ] **Authentication**
+- [x] **Authentication**
   - [ ] Login
   - [ ] Register
   - [ ] Logout
 
-- [ ] **Financial Management**
+- [x] **Financial Management**
   - [ ] Dashboard
   - [ ] Transactions
     - [ ] Create
@@ -39,7 +39,7 @@
     - [ ] Update
     - [ ] Delete
 
-- [ ] **User**
+- [x] **User**
   - [ ] Profile
 
 <br/>

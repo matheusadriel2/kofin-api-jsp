@@ -23,7 +23,12 @@
 
 ## Sections
 
+<img src="./assets/use-gif.gif">
+
+<br>
+
 - [x] **Authentication**
+
   - [ ] Login
   - [ ] Register
   - [ ] Logout
@@ -60,4 +65,4 @@ If you have a suggestion that would make this better, please fork the repo and c
 
 ## Contact
 
-📧 Mail · matheusadrieldsc@gmail.com
+<a href="mailto:matheusadrieldsc@gmail.com"><img src="./assets/signature.png"></a>
